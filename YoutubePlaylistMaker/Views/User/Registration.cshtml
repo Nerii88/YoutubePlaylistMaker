@@ -1,0 +1,32 @@
+﻿@model YoutubePlaylistMaker.Models.UserModel
+@{
+    ViewBag.Title = "Registration";
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" id="myModalLabel">Modal Registration</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm())
+    {
+        <div>
+            <fieldset>
+                <legend>Create new user</legend>
+                <div>
+                    @Html.LabelFor(u => u.Email)
+                </div>
+                <div>
+                    @Html.TextBoxFor(u => u.Email)
+                </div>
+                <div>
+                    @Html.LabelFor(u => u.Password)
+                </div>
+                <div>
+                    @Html.PasswordFor(u => u.Password)
+                </div>
+                <input type="submit" value="Create User" />
+            </fieldset>
+        </div>
+    }
+    <p>This does not do anything yet</p>
+</div>

@@ -1,0 +1,63 @@
+﻿@model YoutubePlaylistMaker.Models.UserModel
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" id="myModalLabel">Log In</h4>
+</div>
+<div class="modal-body">
+    <div id="errorMessage"></div>
+    @using (Ajax.BeginForm("LogIn", new AjaxOptions()
+    {
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "loginModalContainer"
+    }))
+    {
+        @Html.AntiForgeryToken()
+        <div>
+            @Html.LabelFor(u => u.Email)
+        </div>
+        <div>
+            @Html.TextBoxFor(u => u.Email)
+        </div>
+
+        <div>
+            @Html.LabelFor(u => u.Password)
+        </div>
+        <div>
+            @Html.PasswordFor(u => u.Password)
+        </div>
+
+        <p>
+            <button type="button" onclick="ajaxPost(this)">Log In</button>
+        </p>
+    }
+    <p>This does not do anything yet</p>
+    <div id="loginModalContainer"></div>
+</div>
+
+<script>
+    function ajaxPost(btnClicked) {
+        var $form = $(btnClicked).parents('form');
+        var email = $("#Email").val();
+        $.ajax({
+            type: "POST",
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            error: function (xhr, status, error) {
+                alert("error");
+            },
+            success: function (response) {
+                if (response) {
+                    $("#myModal").modal('hide');
+                    var userName = '<strong>' + email + '</strong>';
+                    var logoutButton = '<input class="btn btn-default" type="button" onclick="logOut()" value="Log out"/>';
+                    $("#indexHeader").html(userName + logoutButton);
+                } else {
+                    $("#errorMessage").html("Invalid login information");
+                }
+            }
+        });
+
+        return false;// if it's a link to prevent post
+    }
+</script>

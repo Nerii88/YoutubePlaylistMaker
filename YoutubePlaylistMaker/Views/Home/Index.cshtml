@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div id="indexContent" class="row">
+    <div id="indexLeft" class="col-xs-7">
+        <div id="leftTop" class="row">
+            <div class="leftTopContainer">
+                <div class="leftTopOuter">
+                    <div class="leftTopInner customDivFiller">
+                        <div id="leftTopLeft" class="col-xs-7" style="height:inherit;">
+                            <div id="iFrameContainer" class="customDivFiller">
+                                <div id="player"></div>
+                            </div>
+                        </div>
+                        <div id="leftTopRight" class="col-xs-5 lefTopRightStyle customBorder">
+                            <div id="leftTopRightTop" class="row">
+                                <div id="videoNameContainer"></div>
+                            </div>
+                            <div id="leftTopRightBottom" class="row">
+                                <div id="videoDescContainer"></div>
+                            </div>
+                        </div>
+                    </div> <!--leftTopInner-->
+                </div> <!--leftTopOuter-->
+            </div> <!--leftTopContainer-->
+        </div> <!--leftTop-->
+        <div id="leftBottom" class="row customleftBottomPadder">
+            <div class="customBorder customDiscreteBackground">
+                <div id="searchResult"></div>
+                <div class="nextPrevButtonsContainer">
+                    <div id='nextprevButtons' class='searchNextPrevButtons'>
+                        <button title='Previous page' id='PREVbutton' class="btn btn-default btn-xs searchNextPrevButton" onclick='previousPage()' data-toggle='tooltip' data-placement='top'>Previous</button>
+                        <button title='Next page' id='NEXTbutton' class="btn btn-default btn-xs searchNextPrevButton" onclick='nextPage()' data-toggle='tooltip' data-placement='top'>Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="indexRight" class="col-xs-5">
+        <div id="rightTop" class="row customIndexRightPadder">
+            <div class="playlistInfoContainer customIndexRightPadder">
+                <div id="playlistName" class="row playlistDivsPadder">
+                    <h6 style="color:white;">New Playlist</h6>
+                </div>
+                <div id="ytLinkInputContainer" class="row playlistDivsPadder">
+                    <input id="ytLink" type="text" class="form-control ytLinkFix" onkeypress="inputLinkFieldOnKeyPressEvent(event)" placeholder="Youtube Link Goes Here">
+                    <input id="ytLinkInputButton" type="button" class="btn btn-default leftFloater" value="Add" onclick="addToPlaylistFromLinkInput()" data-toggle="tooltip" data-placement="top" title="Add to playlist">
+                </div>
+                <div id="playlistRepeatOptionsContainer" class="row playlistDivsPadder">
+                    <div class="btn-group">
+                        <button id="btn_playlist_repeatOne" type="button" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Repeat One">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true">
+                            </span>
+                        </button>
+                        <button id="btn_playlist_repeatAll" type="button" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Repeat All">
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true">
+                            </span>
+                        </button>
+                        <button id="btn_playlist_shuffle" type="button" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Shuffle">
+                            <span class="glyphicon glyphicon-random" aria-hidden="true">
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div id="playlist" class="row playlistContainer"></div>
+            </div>
+        </div>
+        <div id="rightBottom" class="row customIndexRightPadder customRightBottomPadder">
+            <div id="recommendationsContainer" class="customBorder customDiscreteBackground">
+                <h2>Recommendations based on currently playing video - Not yet implemented</h2>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,256 @@
+﻿/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.myBody {
+    min-width: 995px;
+}
+.customBorder {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.indexContainer {
+    padding-left: 100px;
+    padding-right: 100px;
+    /*margin-top:60px;
+    margin-bottom:60px;*/
+    padding-top: 60px;
+    padding-bottom: 60px;
+    overflow: auto;
+    z-index: 8;
+}
+.lefTopRightStyle {
+    height: inherit;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #FAFAFA;
+}
+.customDiscreteBackground {
+    overflow-x: hidden;
+    background-color: #FAFAFA;
+}
+.myBorder {
+    border: 1px solid black;
+}
+.myHeader {
+    position: fixed;
+    top: 0;
+    height: 60px;
+    min-width:995px;
+    width: 100%;
+    z-index: 9;
+    background-color: #F0F0F0;
+}
+.myFooter {
+    position: fixed;
+    bottom: 0;
+    height: 60px;
+    min-width:995px;
+    width:100%;
+    z-index: 9;
+    background-color: #F0F0F0;
+}
+
+.innerDiv {
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.customDivFiller {
+    width: 100%;
+    height: 100%;
+}
+
+.leftTopContainer { 
+    width: 100%;
+}
+.leftTopContainer .leftTopOuter {
+    width: 100%;
+    padding-top: 34.5%;
+    position: relative;
+}
+.leftTopContainer .leftTopOuter .leftTopInner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.customleftBottomPadder {
+    padding-left: 15px;
+    padding-top: 15px;
+}
+.customIndexRightPadder {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.customRightBottomPadder {
+    padding-top: 15px;
+}
+
+.ytLinkFix {
+    float:left;
+    width:232px;
+}
+
+.playlistDivsPadder {
+    padding-top: 5px;
+    margin-left: 5px;
+}
+
+.playlistVideoContainer {
+    height: 41px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.playlistVideoOrderNumber {
+    width: 5px;
+    height: 41px;
+    line-height: 41px;
+    float:left;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.playlistVideoOrderNumberH6 {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+    color: white;
+}
+.playlistVideoImage {
+    padding-left: 5px;
+    padding-right: 5px;
+    float: left;
+}
+.playlistVideoName {
+    height: 41px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.playlistVideoNameH6 {
+    display: inline-block;
+    margin-top:0;
+    color: white;
+}
+.playlistContainer {
+    margin-top:10px;
+    height: 321px;
+    overflow-y: auto;
+    background-color: #484848;
+}
+.playlistVideoClickLink {
+    height: 100%;
+    float: left;
+    width: calc(100% - 24px);
+}
+.leftFloater {
+    float: left;
+}
+.playlistInfoContainer {
+    background-color: #404040
+}
+.highlightPlaylistVideo {
+    background-color: yellowgreen;
+}
+
+.searchFieldDiv {
+    margin: 0 auto;
+    margin-left: 84px;
+    padding-top: 12px;
+}
+.searchButtonDimensions {
+    height: 34px;
+    width: 68px;
+}
+.loginHeaderPadder {
+    padding-top: 12px;
+    float: right;
+    margin-right: 87px;
+}
+
+.searchResultItemContainer {
+    height: 82px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.searchResultButtonContainer {
+    width: 30px;
+    height: 100%;
+    float: left;
+    margin-left: 5px;
+    margin-top: 10px;
+}
+.searchResultImageContainer {
+    float: left;
+    padding-right: 5px;
+}
+.searchResultTextContainer {
+    float: left;
+    overflow: hidden;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(100% - 196px);
+    height: 82px;
+}
+.searchResultPlayButton {
+    padding-top: 2px;
+}
+.searchResultAddButton {
+    padding-top: 10px;
+}
+.searchResultName {
+    height: 45px;
+}
+.searchResultDuration {
+    
+}
+.nextPrevButtonsContainer {
+    display: flex;
+    justify-content: center;
+}
+.searchNextPrevButtons {
+    align-self: center;
+}
+.searchNextPrevButton {
+    visibility:hidden;
+}
+.actionButtonsContainer {
+    margin-left: 5px;
+    padding-top: 5px;
+    height: 50px;
+    float: left;
+}
+.playPreviousButton {
+    height: 50px;
+    width: 50px;
+    float: left;
+}
+.playNextButton {
+    height: 50px;
+    width: 50px;
+    float: left;
+}
+.pausePlayButton {
+    height: 50px;
+    width: 50px;
+    float: left;
+}
+.elapsedDurationContainer {
+    
+}
+.elapsedDurationContainerLine {
+    
+}
+.songDurationContainer {
+    
+}
+.volumeButtonContainer {
+    
+}

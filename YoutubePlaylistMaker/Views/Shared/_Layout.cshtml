@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/auth.js"></script>
+    <script type="text/javascript" src="~/Scripts/YTPlayerScripts.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+    <script type="text/javascript" src="~/Scripts/YTSearchScripts.js"></script>
+</head>
+<body class="myBody">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div id="indexTop" class="row myHeader">
+            <div class="col-xs-8">
+                <div class="searchFieldDiv">
+                    <input id="searchField" type="text" class="form-control leftFloater" onkeypress="inputSearchFieldOnKeyPressEvent(event)" placeholder="Search">
+                    <button id="btn_search" type="button" class="btn btn-default btn-xs leftFloater searchButtonDimensions" onclick="searchYoutube()" data-toggle="tooltip" data-placement="top" title="Search">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true">
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div id="indexHeader" class="loginHeaderPadder">
+                    @if (Request.IsAuthenticated)
+                    {
+                        <strong>@Html.Encode(User.Identity.Name)</strong>
+
+                        <input class="btn btn-default" type="button" onclick="logOut()" value="Log out" />
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })
+
+                        @Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })
+                    }
+                </div>
+                <button type="button" class="btn btn-default btn-xs" onclick="customPlaylistInitialBuild()" data-toggle="tooltip" data-placement="top" title="For testing purposes">Fill Playlist</button>
+            </div>
+        </div>
+        <div class="row indexContainer">
+            @RenderBody()
+        </div>
+        <div id="playerActions" class="row myFooter">
+            <div class="actionButtonsContainer">
+                <div class="playPreviousButton" onclick="playPreviousSong()">
+                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true" style="font-size:2.7em;"></span>
+                </div>
+                <div class="pausePlayButton" onclick="pauseOrPlay()">
+                    <span id="pausePlaySpan" class="glyphicon glyphicon-play" aria-hidden="true" style="font-size:2.7em;"></span>
+                </div>
+                <div class="playNextButton" onclick="playNextSong()">
+                    <span class="glyphicon glyphicon-step-forward" aria-hidden="true" style="font-size:2.7em;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+    $(function () {
+        $('body').on('click', '.modal-link', function (e) {
+            e.preventDefault();
+            $(this).attr('data-target', '#myModal');
+            $(this).attr('data-toggle', 'modal');
+        });
+
+        $('#modal-container').on('hidden.bs.modal', function () {
+            $(this).removeData('bs.modal');
+        });
+
+        $('body').on('click', '.btn-group button', function (e) {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+            } else {
+                $(this).addClass('active');
+                $(this).siblings().removeClass('active');
+            }
+        });
+
+        $(".btn").mouseup(function () {
+            $(this).blur();
+        });
+    });
+
+    function logOut() {
+        $.ajax({
+            url: '@Url.Action("Logout", "User")',
+            success: function () {
+                var loginButton = '@Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })';
+                var registerButton = '@Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })';
+                $("#indexHeader").html(loginButton + registerButton);
+            }
+        });
+    };
+</script>
