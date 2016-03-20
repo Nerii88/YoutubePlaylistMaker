@@ -10,8 +10,9 @@ pic: https://i.imgur.com/jSATTT0.jpg
 TODO:
 1. Add a volume changer next to buttons on bottom of screen
 2. Add a progress bar on bottom of screen
-3. Add a database
-4. Make users able to register and ability to log in
-5. Make users able to save and load their playlists to/from the database
-6. Show a logged in users saved playlists possibly via a slide in menu/window
-7. Ability to make playlists public and accessible via a unique link
+3. Add recommendations based on currently playing video
+4. Add a database
+5. Make users able to register and ability to log in
+6. Make users able to save and load their playlists to/from the database
+7. Show a logged in users saved playlists possibly via a slide in menu/window
+8. Ability to make playlists public and accessible via a unique link
