@@ -2,7 +2,9 @@
 Make youtube playlists easily all on a dynamically loading page!
 Project made in Visual Studio 2013.
 For now only the front end functionality is there.
-The "Fill Playlist" button on top of the page is only there to fill up the playlist with pre determined videos quickly. Will be removed later
+The "Fill Playlist" button on top of the page is only there to fill up the playlist with pre determined videos quickly. Will be removed later.
+
+pic: https://i.imgur.com/jSATTT0.jpg 
 
 
 TODO:
