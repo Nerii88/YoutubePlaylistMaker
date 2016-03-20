@@ -8,6 +8,7 @@ Screen shot: https://i.imgur.com/jSATTT0.jpg
 
 
 TODO:
+
 1. Add a volume changer next to buttons on bottom of screen
 
 2. Add a progress bar on bottom of screen
