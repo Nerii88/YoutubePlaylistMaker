@@ -378,6 +378,8 @@ function populateSuggestions() {
 
 function playFromSuggested(index) {
     playSongByYTID(suggestions[index].ytID);
+    playingFromPlaylist = false;
+    currentPlayingIndex = -1;
 };
 
 function customPlaylistInitialBuild() {
