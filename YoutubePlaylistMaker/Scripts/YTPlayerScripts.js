@@ -114,6 +114,7 @@ function changeIconToPlay() {
 function playSongByYTID(ytID) {
     player.loadVideoById(ytID);
     player.setPlaybackQuality('hd720');
+    findSuggestionsToPlayedVideo(ytID);
 };
 
 var playlistElements = [];
@@ -234,6 +235,8 @@ function addToPlaylistFromLinkInput() {
 //Fetches Youtube video data from given Youtube Video ID
 //If successful adds it to the playlist and reloads visible playlist on the site
 function getYTVideoInfoByYTID(ytID) {
+    //findSuggestionsToPlayedVideo(ytID);
+
     $.getJSON("https://www.googleapis.com/youtube/v3/videos", {
         key: "AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
         part: "snippet, contentDetails",
@@ -280,6 +283,97 @@ function inputLinkFieldOnKeyPressEvent(e) {
     if (e.keyCode === 13) {
         addToPlaylistFromLinkInput();
     }
+};
+
+var suggestions = [];
+
+function findSuggestionsToPlayedVideo(ytID) {
+    $.getJSON("https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + ytID + "&type=video&maxResults=10&key=AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
+    function (data) {
+        if (data.items.length == 0) {
+            alert("Suggestions not found");
+            return "";
+        }
+
+        getYTSuggestionVideosDuration(data);
+
+        return "";
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        alert(jqXHR.responseText || errorThrown);
+    });
+};
+
+//Extracts video ID from all results then queries the youtube API to 
+//get duration of all the videos
+function getYTSuggestionVideosDuration(videoData) {
+    var allIds = "";
+    for (var i = 0; i < videoData.items.length; i++) {
+        if (i == videoData.items.length - 1) {
+            allIds = allIds + videoData.items[i].id.videoId;
+        } else {
+            allIds = allIds + videoData.items[i].id.videoId + ", ";
+        }
+    }
+    $.getJSON("https://www.googleapis.com/youtube/v3/videos", {
+        key: "AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
+        part: "contentDetails",
+        id: allIds
+    },
+    function (data) {
+        if (data.items.length == 0) {
+            alert("Video not found");
+            return "";
+        }
+
+        suggestions = [];
+        for (var j = 0; j < data.items.length; j++) {
+            addToSuggestions(videoData.items[j], convert_time(data.items[j].contentDetails.duration));
+        }
+        populateSuggestions();
+
+        return "";
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        alert(jqXHR.responseText || errorThrown);
+    });
+};
+
+function addToSuggestions(item, duration) {
+    var imgurl = item.snippet.thumbnails.medium.url;
+    var title = removeQuotations(strip(item.snippet.title));
+    var ytID = item.id.videoId;
+    var desc = nl2br(item.snippet.description, true);
+    var publishedAt = item.snippet.publishedAt;
+
+    suggestions.push({ imgLink: imgurl, name: title, ytID: ytID, description: desc, publishedAt: publishedAt, duration: duration });
+};
+
+function populateSuggestions() {
+    var suggestionsDiv = $("#recommendationsContainer");
+    var newHtml = "";
+
+    for (var index = 1; index <= suggestions.length; index++) {
+        var i = index - 1;
+        var imgSrc = suggestions[i].imgLink;
+        var videoName = suggestions[i].name;
+        var duration = suggestions[i].duration;
+
+        var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSearch(\"" + i + "\")' " +
+            "data-toggle='tooltip' data-placement='top' title='Play'><span class='glyphicon glyphicon-play-circle' aria-hidden='true'></span></button></div>";
+        var addToPlaylistButton = "<div class='searchResultAddButton'><button type='button' class='btn btn-default btn-xs' onclick='addToPlaylistFromSearch(\"" + i + "\")' " +
+            "data-toggle='tooltip' data-placement='top' title='Add to playlist'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></div>";
+        var buttonsDiv = "<div class='searchResultButtonContainer'>" + playButton + addToPlaylistButton + "</div>";
+
+        var imageDiv = "<div class='searchResultImageContainer'><img class='img-rounded' src='" + imgSrc + "' height='82' width='146' /></div>";
+
+        var nameDiv = "<div class='searchResultName'><h6><b>" + videoName + "</b></h6></div>";
+        var durationDiv = "<div class='searchResultDuration'><h6>" + duration + "</h6></div>";
+        var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + durationDiv + "</div>";
+
+        var allInOne = "<div class='searchResultItemContainer'>" + buttonsDiv + imageDiv + textDiv + "</div>";
+        newHtml = newHtml + allInOne;
+    };
+
+    suggestionsDiv.html(newHtml);
 };
 
 function customPlaylistInitialBuild() {

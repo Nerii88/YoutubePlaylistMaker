@@ -48,7 +48,7 @@ function searchWithToken(pageToken) {
     var request = gapi.client.youtube.search.list({
         q: searchQuery,
         part: "snippet",
-        maxResults: 20,
+        maxResults: 10,
         type: "video",
         pageToken: pageToken
     });
@@ -68,7 +68,7 @@ function searchWithToken(pageToken) {
     });
 };
 
-//Extracts video ID from all results and queries the youtube API to 
+//Extracts video ID from all results then queries the youtube API to 
 //get duration of all the videos
 function getYTVideosDuration(videoData) {
     var allIds = "";
@@ -207,9 +207,64 @@ function playFromSearch(index) {
         addTitleDateAndDescription(searchResult[index].name, searchResult[index].publishedAt, searchResult[index].description);
         player.loadVideoById(searchResult[index].ytID);
         player.setPlaybackQuality('hd720');
+        findSuggestionsToPlayedVideo(searchResult[index].ytID);
     }
 };
 
 function addToPlaylistFromSearch(index) {
     getYTVideoInfoByYTID(searchResult[index].ytID);
 };
+
+var isFirefox = typeof InstallTrigger !== 'undefined';
+var isChrome = !!window.chrome && !!window.chrome.webstore;
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+//http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+var suggestCallBack; // global var for autocomplete jsonp
+
+$(document).ready(function () {
+    if (isChrome || isIE) {
+        $("#searchField").autocomplete({
+            source: function (request, response) {
+                $.getJSON("http://suggestqueries.google.com/complete/search?callback=?",
+                    {
+                        "hl": "en", // Language                  
+                        "jsonp": "suggestCallBack", // jsonp callback function name
+                        "q": request.term, // query term
+                        "client": "youtube", // force youtube style response, i.e. jsonp
+                        "ds": "yt"
+                    }
+                );
+                suggestCallBack = function (data) {
+                    var suggestions = [];
+                    $.each(data[1], function (key, val) {
+                        suggestions.push({ "value": val[0] });
+                    });
+                    suggestions.length = 5; // prune suggestions list to only 5 items
+                    response(suggestions);
+                };
+            },
+        });
+    } else if (isFirefox) {
+        $("#searchField").autocomplete({
+            source: function (request, response) {
+                $.getJSON("http://suggestqueries.google.com/complete/search?callback=?",
+                    {
+                        "hl": "en", // Language                  
+                        "jsonp": "suggestCallBack", // jsonp callback function name
+                        "q": request.term, // query term
+                        "client": "firefox", // force firefox style response, i.e. json
+                        "ds": "yt"
+                    }
+                );
+                suggestCallBack = function (data) {
+                    var suggestions = [];
+                    $.each(data[1], function (key, val) {
+                        suggestions.push({ "value": val });
+                    });
+                    suggestions.length = 5; // prune suggestions list to only 5 items
+                    response(suggestions);
+                };
+            },
+        });
+    }
+});
