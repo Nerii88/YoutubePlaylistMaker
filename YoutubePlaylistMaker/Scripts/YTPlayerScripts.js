@@ -357,7 +357,7 @@ function populateSuggestions() {
         var videoName = suggestions[i].name;
         var duration = suggestions[i].duration;
 
-        var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSearch(\"" + i + "\")' " +
+        var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSuggested(\"" + i + "\")' " +
             "data-toggle='tooltip' data-placement='top' title='Play'><span class='glyphicon glyphicon-play-circle' aria-hidden='true'></span></button></div>";
         var addToPlaylistButton = "<div class='searchResultAddButton'><button type='button' class='btn btn-default btn-xs' onclick='addToPlaylistFromSearch(\"" + i + "\")' " +
             "data-toggle='tooltip' data-placement='top' title='Add to playlist'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></div>";
@@ -374,6 +374,10 @@ function populateSuggestions() {
     };
 
     suggestionsDiv.html(newHtml);
+};
+
+function playFromSuggested(index) {
+    playSongByYTID(suggestions[index].ytID);
 };
 
 function customPlaylistInitialBuild() {
