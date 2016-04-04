@@ -232,29 +232,56 @@ textarea {
     float: left;
 }
 .playPreviousButton {
+    padding-top: 5px;
     height: 50px;
     width: 50px;
     float: left;
 }
 .playNextButton {
+    padding-top: 5px;
     height: 50px;
     width: 50px;
     float: left;
 }
 .pausePlayButton {
+    padding-top: 5px;
     height: 50px;
     width: 50px;
     float: left;
 }
-.elapsedDurationContainer {
-    
+.volumeControllerContainer {
+    margin-left: 5px;
+    padding-top: 5px;
+    height: 50px;
+    float: left;
 }
-.elapsedDurationContainerLine {
-    
+.volumeIcon {
+    padding-top: 5px;
+    height: 50px;
+    width: 50px;
+    float: left;
 }
-.songDurationContainer {
-    
+.volumeSlider {
+    padding-top: 20px;
+    height: 50px;
+    width: 100px;
+    float: left;
 }
-.volumeButtonContainer {
-    
+.progressBarController {
+    margin-left: 30px;
+    height: 50px;
+    width: 655px;
+    float: left;
+}
+.progressTimer {
+    width: 30px;
+    float: left;
+    padding-top: 14px;
+}
+.progressBarSlider {
+    float: left;
+    width: 595px;
+    padding-top: 25px;
+    padding-right: 9px;
+    padding-left: 2px;
 }

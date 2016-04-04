@@ -14,13 +14,23 @@ function onYouTubeIframeAPIReady() {
         right: 0,
         height: '100%',
         width: '100%',
+        //playerVars: { 'controls': 0 },
         events: {
             'onStateChange': onPlayerStateChange
         }
     });
+
+    
 };
 
+//function bindMouseUp() {
+//    $(".ytp-mute-button").mouseup(function () {
+//        alert("hey ho mouseup");
+//    });
+//}
+
 var playingFromPlaylist = false;
+var playingFromSuggested = false;
 
 //Event fired when play state is changed
 //Plays next song if current song was played from playlist
@@ -99,14 +109,12 @@ function pauseOrPlay() {
 
 function changeIconToPause() {
     $("#pausePlaySpan").removeClass();
-    $("#pausePlaySpan").addClass("glyphicon");
-    $("#pausePlaySpan").addClass("glyphicon-pause");
+    $("#pausePlaySpan").addClass("glyphicon glyphicon-pause");
 };
 
 function changeIconToPlay() {
     $("#pausePlaySpan").removeClass();
-    $("#pausePlaySpan").addClass("glyphicon");
-    $("#pausePlaySpan").addClass("glyphicon-play");
+    $("#pausePlaySpan").addClass("glyphicon glyphicon-play");
 };
 
 //Loads a Youtube video by a Youtube Video ID
@@ -114,6 +122,16 @@ function changeIconToPlay() {
 function playSongByYTID(ytID) {
     player.loadVideoById(ytID);
     player.setPlaybackQuality('hd720');
+
+    //var totalSeconds = player.getDuration();
+    //if (totalSeconds > 59) {
+    //    var minutes = totalSeconds % 60;
+    //    var seconds = minutes * 60 - totalSeconds;
+    //    $("#videoProgressTotalLength").html("<h6>" + minutes + ":" + seconds + "</h6>");
+    //} else {
+    //    $("#videoProgressTotalLength").html("<h6>" + totalSeconds + "</h6>");
+    //}
+
     findSuggestionsToPlayedVideo(ytID);
 };
 
@@ -159,6 +177,7 @@ function removeFromPlaylist(index) {
 //Adds/removes highlightning from divs to show currently played item
 function playFromPlaylist(index) {
     playingFromPlaylist = true;
+    playingFromSuggested = false;
     if (currentPlayingIndex > -1) unhighlightPlaylistVideo(currentPlayingIndex);
     highlightPlaylistVideo(index);
 
@@ -377,10 +396,123 @@ function populateSuggestions() {
 };
 
 function playFromSuggested(index) {
-    playSongByYTID(suggestions[index].ytID);
+    playingFromSuggested = true;
     playingFromPlaylist = false;
+
+    if (currentPlayingIndex > -1) unhighlightPlaylistVideo(currentPlayingIndex);
     currentPlayingIndex = -1;
+
+    addTitleDateAndDescription(suggestions[index].name, suggestions[index].publishedAt, suggestions[index].description);
+    playSongByYTID(suggestions[index].ytID);
 };
+
+function mute() {
+    if (player.isMuted()) {
+        player.unMute();
+        $("#volumeIcon").removeClass();
+        $("#volumeIcon").addClass("glyphicon glyphicon-volume-up");
+    } else {
+        player.mute();
+        $("#volumeIcon").removeClass();
+        $("#volumeIcon").addClass("glyphicon glyphicon-volume-off");
+    }
+};
+
+function updateProgressBarSlider() {
+    var currentTime = player.getCurrentTime();
+    var totalDuration = player.getDuration();
+    var currentProgress = currentTime / totalDuration * 100;
+    $("#videoProgressSlider").slider("value", currentProgress);
+    setElapsedTime(currentTime);
+    setTotalTime(totalDuration);
+};
+
+function progressIntervallUpdater() {
+    if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+        updateProgressBarSlider();
+    }
+};
+
+function setElapsedTime(totalSeconds) {
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = Math.floor(totalSeconds - (minutes * 60));
+    if (seconds < 10)
+        seconds = "0" + seconds;
+    $("#videoProgressTimer").html("<h6>" + minutes + ":" + seconds + "</h6>");
+};
+
+function setTotalTime(totalSeconds) {
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = Math.floor(totalSeconds - (minutes * 60));
+    if (seconds < 10)
+        seconds = "0" + seconds;
+    $("#videoProgressTotalLength").html("<h6>" + minutes + ":" + seconds + "</h6>");
+}
+
+var currentVolume = 0;
+
+function updateVolumeBarSlider() {
+    currentVolume = player.getVolume();
+    $("#volumeSlider").slider("value", currentVolume);
+};
+
+function volumeIntervallUpdater() {
+    if (currentVolume != player.getVolume()) {
+        updateVolumeBarSlider();
+    }
+};
+
+var myProgressInterval;
+var myVolumeInterval;
+
+var progressIntervalMS = 25;
+var volumeIntervalMS = 25;
+
+$(function () {
+    myProgressInterval = setInterval(progressIntervallUpdater, progressIntervalMS);
+    myVolumeInterval = setInterval(volumeIntervallUpdater, volumeIntervalMS);
+
+    $("#volumeSlider").slider();
+    $("#volumeSlider").css("background", "#424242");
+    $("#volumeSlider").slider({
+        start: function() {
+            clearInterval(myVolumeInterval);
+        },
+        stop: function () {
+            var value = $("#volumeSlider").slider("value");
+            player.setVolume(value);
+            if (player.isMuted()) {
+                player.unMute();
+                $("#volumeIcon").removeClass();
+                $("#volumeIcon").addClass("glyphicon glyphicon-volume-up");
+            }
+            myVolumeInterval = setInterval(volumeIntervallUpdater, volumeIntervalMS);
+        },
+        slide: function () {
+            var value = $("#volumeSlider").slider("value");
+            player.setVolume(value);
+            if (player.isMuted()) {
+                player.unMute();
+                $("#volumeIcon").removeClass();
+                $("#volumeIcon").addClass("glyphicon glyphicon-volume-up");
+            }
+        }
+    });
+
+    $("#videoProgressSlider").slider();
+    $("#videoProgressSlider").css("background", "#424242");
+    $("#videoProgressSlider").slider({
+        start: function () {
+            clearInterval(myProgressInterval);
+        },
+        stop: function () {
+            var value = $("#videoProgressSlider").slider("value");
+            var totalSeconds = player.getDuration();
+            player.seekTo(totalSeconds / 100 * value, true);
+            myProgressInterval = setInterval(progressIntervallUpdater, progressIntervalMS);
+        }
+    });
+});
 
 function customPlaylistInitialBuild() {
     getYTVideoInfoByYTID("-mumVUh5cXw");
@@ -393,4 +525,5 @@ function customPlaylistInitialBuild() {
     getYTVideoInfoByYTID("cr_Te6FDddg");
     getYTVideoInfoByYTID("iXlR7zRYPTw");
     getYTVideoInfoByYTID("sB0Am0v2pRo");
+    getYTVideoInfoByYTID("XBf8L7Kkdeo");
 };

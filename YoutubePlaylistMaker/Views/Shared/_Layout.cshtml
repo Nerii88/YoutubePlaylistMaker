@@ -57,14 +57,29 @@
         <div id="playerActions" class="row myFooter">
             <div class="actionButtonsContainer">
                 <div class="playPreviousButton" onclick="playPreviousSong()">
-                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true" style="font-size:2.7em;"></span>
+                    <span class="glyphicon glyphicon-step-backward" aria-hidden="true" style="cursor: pointer; font-size:2.7em;"></span>
                 </div>
                 <div class="pausePlayButton" onclick="pauseOrPlay()">
-                    <span id="pausePlaySpan" class="glyphicon glyphicon-play" aria-hidden="true" style="font-size:2.7em;"></span>
+                    <span id="pausePlaySpan" class="glyphicon glyphicon-play" aria-hidden="true" style="cursor: pointer; font-size:2.7em;"></span>
                 </div>
                 <div class="playNextButton" onclick="playNextSong()">
-                    <span class="glyphicon glyphicon-step-forward" aria-hidden="true" style="font-size:2.7em;"></span>
+                    <span class="glyphicon glyphicon-step-forward" aria-hidden="true" style="cursor: pointer; font-size:2.7em;"></span>
                 </div>
+            </div>
+            <div class="volumeControllerContainer">
+                <div class="volumeIcon" onclick="mute()">
+                    <span id="volumeIcon" class="glyphicon glyphicon-volume-up" aria-hidden="true" style="cursor: pointer; font-size:2.7em;"></span>
+                </div>
+                <div class="volumeSlider">
+                    <div id="volumeSlider"></div>
+                </div>
+            </div>
+            <div class="progressBarController">
+                <div id="videoProgressTimer" class="progressTimer"><h6>0:00</h6></div>
+                <div class="progressBarSlider">
+                    <div id="videoProgressSlider"></div>
+                </div>
+                <div id="videoProgressTotalLength" class="progressTimer"><h6>0:00</h6></div>
             </div>
         </div>
     </div>
@@ -96,6 +111,8 @@
         $(".btn").mouseup(function () {
             $(this).blur();
         });
+
+        
     });
 
     function logOut() {

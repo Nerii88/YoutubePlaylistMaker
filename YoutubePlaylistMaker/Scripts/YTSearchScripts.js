@@ -4,6 +4,7 @@
 function inputSearchFieldOnKeyPressEvent(e) {
     if (e.keyCode === 13) {
         searchYoutube();
+        $("#searchField").blur();
     }
 };
 
@@ -207,6 +208,7 @@ function playFromSearch(index) {
         addTitleDateAndDescription(searchResult[index].name, searchResult[index].publishedAt, searchResult[index].description);
         player.loadVideoById(searchResult[index].ytID);
         player.setPlaybackQuality('hd720');
+        
         findSuggestionsToPlayedVideo(searchResult[index].ytID);
     }
 };
