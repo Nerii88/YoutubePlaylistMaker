@@ -19,34 +19,36 @@ function onYouTubeIframeAPIReady() {
             'onStateChange': onPlayerStateChange
         }
     });
-
-    
+    myProgressInterval = setInterval(progressIntervallUpdater, progressIntervalMS);
+    myVolumeInterval = setInterval(volumeIntervallUpdater, volumeIntervalMS);
 };
-
-//function bindMouseUp() {
-//    $(".ytp-mute-button").mouseup(function () {
-//        alert("hey ho mouseup");
-//    });
-//}
 
 var playingFromPlaylist = false;
 var playingFromSuggested = false;
 
 //Event fired when play state is changed
 //Plays next song if current song was played from playlist
+//Plays first song in suggestions if autoplay from suggestions is klicked
 function onPlayerStateChange(event) {
-    if (playingFromPlaylist) {
+    if (event.data == YT.PlayerState.ENDED) {
+        changeIconToPlay();
+    } else if (event.data == YT.PlayerState.PAUSED) {
+        changeIconToPlay();
+    } else if (event.data == YT.PlayerState.PLAYING) {
+        changeIconToPause();
+    }
+    if (autoplayFromSuggestedBool) {
         if (event.data == YT.PlayerState.ENDED) {
-            changeIconToPlay();
+            playNextSong();
+        }
+    } else if (playingFromPlaylist) {
+        if (event.data == YT.PlayerState.ENDED) {
+            //changeIconToPlay();
             if ($("#btn_playlist_repeatOne").hasClass('active')) {
                 repeatSong();
             } else {
                 playNextSong();
             }
-        } else if (event.data == YT.PlayerState.PAUSED) {
-            changeIconToPlay();
-        } else if (event.data == YT.PlayerState.PLAYING) {
-            changeIconToPause();
         }
     }
 };
@@ -58,7 +60,9 @@ function repeatSong() {
 //Checks if repeat all or shuffle buttons are pressed
 //and plays next song in the playlist accordingly
 function playNextSong() {
-    if (playingFromPlaylist && playlistElements.length > 0) {
+    if (autoplayFromSuggestedBool && suggestions.length > 0) {
+        randomizeFromSuggested();
+    } else if (playingFromPlaylist && playlistElements.length > 0) {
         if ($("#btn_playlist_shuffle").hasClass('active')) {
             var i = (Math.floor(Math.random() * playlistElements.length) + 1) - 1;
             while (i == currentPlayingIndex) {
@@ -80,7 +84,9 @@ function playNextSong() {
 //Checks if repeat all or shuffle buttons are pressed
 //and plays previous song in the playlist accordingly
 function playPreviousSong() {
-    if (playingFromPlaylist && playlistElements.length > 0) {
+    if (autoplayFromSuggestedBool && suggestions.length > 0) {
+        randomizeFromSuggested();
+    } else if (playingFromPlaylist && playlistElements.length > 0) {
         if ($("#btn_playlist_shuffle").hasClass('active')) {
             var i = (Math.floor(Math.random() * playlistElements.length) + 1) - 1;
             while (i == currentPlayingIndex) {
@@ -90,7 +96,7 @@ function playPreviousSong() {
         } else {
             if (currentPlayingIndex - 1 < 0) {
                 if ($("#btn_playlist_repeatAll").hasClass('active')) {
-                    playFromPlaylist(playlistElements.length-1);
+                    playFromPlaylist(playlistElements.length - 1);
                 }
             } else {
                 playFromPlaylist(currentPlayingIndex - 1);
@@ -122,15 +128,6 @@ function changeIconToPlay() {
 function playSongByYTID(ytID) {
     player.loadVideoById(ytID);
     player.setPlaybackQuality('hd720');
-
-    //var totalSeconds = player.getDuration();
-    //if (totalSeconds > 59) {
-    //    var minutes = totalSeconds % 60;
-    //    var seconds = minutes * 60 - totalSeconds;
-    //    $("#videoProgressTotalLength").html("<h6>" + minutes + ":" + seconds + "</h6>");
-    //} else {
-    //    $("#videoProgressTotalLength").html("<h6>" + totalSeconds + "</h6>");
-    //}
 
     findSuggestionsToPlayedVideo(ytID);
 };
@@ -181,8 +178,17 @@ function playFromPlaylist(index) {
     if (currentPlayingIndex > -1) unhighlightPlaylistVideo(currentPlayingIndex);
     highlightPlaylistVideo(index);
 
+    if (autoplayFromSuggestedBool)
+        autoplayFromSuggested();
+
+    addTitleDateAndDescription(playlistElements[index].name, playlistElements[index].publishedAt, playlistElements[index].channelTitle, playlistElements[index].description);
+
+    if ($("#addPlayedVideoToPlaylist").hasClass("displayBlock")) {
+        $("#addPlayedVideoToPlaylist").removeClass("displayBlock");
+        $("#addPlayedVideoToPlaylist").addClass("displayNone");
+    }
+
     playSongByYTID(playlistElements[index].ytID);
-    addTitleDateAndDescription(playlistElements[index].name, playlistElements[index].publishedAt, playlistElements[index].description);
     currentPlayingIndex = index;
 };
 
@@ -195,12 +201,12 @@ function unhighlightPlaylistVideo(index) {
 };
 
 //Shows video info next to player
-function addTitleDateAndDescription(title, date, desc) {
+function addTitleDateAndDescription(title, date, channelTitle, desc) {
     var nameConainer = $("#videoNameContainer");
     var descContainer = $("#videoDescContainer");
 
     var titleBuilder = "<h4>" + title + "</h4>";
-    var descBuilder = "<p><b>Published on: " + date.substr(0, 10) + "</b></p>" + "\n\n<p>" + desc + "</p>";
+    var descBuilder = "<p><b>Published on: " + date.substr(0, 10) + "</b></p>" + "<b><p>" + channelTitle + "</p></b>\n\n<p>" + desc + "</p>";
 
     nameConainer.html(titleBuilder);
     descContainer.html(descBuilder);
@@ -249,13 +255,12 @@ function addToPlaylistFromLinkInput() {
     if (ytID == "") return;
 
     getYTVideoInfoByYTID(ytID);
+    $("#ytLink").val("");
 };
 
 //Fetches Youtube video data from given Youtube Video ID
 //If successful adds it to the playlist and reloads visible playlist on the site
 function getYTVideoInfoByYTID(ytID) {
-    //findSuggestionsToPlayedVideo(ytID);
-
     $.getJSON("https://www.googleapis.com/youtube/v3/videos", {
         key: "AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
         part: "snippet, contentDetails",
@@ -269,12 +274,12 @@ function getYTVideoInfoByYTID(ytID) {
 
         var title = removeQuotations(strip(data.items[0].snippet.title));
         var imgurl = data.items[0].snippet.thumbnails.medium.url;
+        var channelTitle = data.items[0].snippet.channelTitle;
         var desc = nl2br(data.items[0].snippet.description, true);
         var publishedAt = data.items[0].snippet.publishedAt;
 
-        playlistElements.push({ imgLink: imgurl, name: title, ytID: ytID, description: desc, publishedAt: publishedAt });
+        playlistElements.push({ imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt });
         populatePlaylist();
-        $("#ytLink").val("");
         return "";
     }).fail(function (jqXHR, textStatus, errorThrown) {
         alert(jqXHR.responseText || errorThrown);
@@ -313,7 +318,6 @@ function findSuggestionsToPlayedVideo(ytID) {
             alert("Suggestions not found");
             return "";
         }
-
         getYTSuggestionVideosDuration(data);
 
         return "";
@@ -360,20 +364,25 @@ function addToSuggestions(item, duration) {
     var imgurl = item.snippet.thumbnails.medium.url;
     var title = removeQuotations(strip(item.snippet.title));
     var ytID = item.id.videoId;
+    var channelTitle = item.snippet.channelTitle;
     var desc = nl2br(item.snippet.description, true);
     var publishedAt = item.snippet.publishedAt;
 
-    suggestions.push({ imgLink: imgurl, name: title, ytID: ytID, description: desc, publishedAt: publishedAt, duration: duration });
+    suggestions.push({ imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt, duration: duration });
 };
 
 function populateSuggestions() {
     var suggestionsDiv = $("#recommendationsContainer");
     var newHtml = "";
-
+    if ($("#rightBottom").hasClass("displayNone")) {
+        $("#rightBottom").removeClass("displayNone");
+        $("#rightBottom").addClass("displayBlock");
+    }
     for (var index = 1; index <= suggestions.length; index++) {
         var i = index - 1;
         var imgSrc = suggestions[i].imgLink;
         var videoName = suggestions[i].name;
+        var channelTitle = suggestions[i].channelTitle;
         var duration = suggestions[i].duration;
 
         var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSuggested(\"" + i + "\")' " +
@@ -384,9 +393,10 @@ function populateSuggestions() {
 
         var imageDiv = "<div class='searchResultImageContainer'><img class='img-rounded' src='" + imgSrc + "' height='82' width='146' /></div>";
 
-        var nameDiv = "<div class='searchResultName'><h6><b>" + videoName + "</b></h6></div>";
-        var durationDiv = "<div class='searchResultDuration'><h6>" + duration + "</h6></div>";
-        var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + durationDiv + "</div>";
+        var nameDiv = "<div><h6 class='searchResultName'><b>" + videoName + "</b></h6></div>";
+        var channelTitleDiv = "<div><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
+        var durationDiv = "<div><h6 class='searchResultDuration'>" + duration + "</h6></div>";
+        var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + channelTitleDiv + durationDiv + "</div>";
 
         var allInOne = "<div class='searchResultItemContainer'>" + buttonsDiv + imageDiv + textDiv + "</div>";
         newHtml = newHtml + allInOne;
@@ -402,9 +412,23 @@ function playFromSuggested(index) {
     if (currentPlayingIndex > -1) unhighlightPlaylistVideo(currentPlayingIndex);
     currentPlayingIndex = -1;
 
-    addTitleDateAndDescription(suggestions[index].name, suggestions[index].publishedAt, suggestions[index].description);
+    addTitleDateAndDescription(suggestions[index].name, suggestions[index].publishedAt, suggestions[index].channelTitle, suggestions[index].description);
+
+    if ($("#addPlayedVideoToPlaylist").hasClass("displayNone")) {
+        $("#addPlayedVideoToPlaylist").removeClass("displayNone");
+        $("#addPlayedVideoToPlaylist").addClass("displayBlock");
+    }
+
     playSongByYTID(suggestions[index].ytID);
 };
+
+function randomizeFromSuggested() {
+    if (suggestions.length > 0) {
+
+        var index = (Math.floor(Math.random() * suggestions.length) + 1) - 1;
+        playFromSuggested(index);
+    }
+}
 
 function mute() {
     if (player.isMuted()) {
@@ -415,6 +439,18 @@ function mute() {
         player.mute();
         $("#volumeIcon").removeClass();
         $("#volumeIcon").addClass("glyphicon glyphicon-volume-off");
+    }
+};
+
+var autoplayFromSuggestedBool = false;
+
+function autoplayFromSuggested() {
+    if (autoplayFromSuggestedBool) {
+        autoplayFromSuggestedBool = false;
+        $("#autoPlaySuggestionsButton").removeClass("lightUpSuggestedAutoplayButton");
+    } else {
+        autoplayFromSuggestedBool = true;
+        $("#autoPlaySuggestionsButton").addClass("lightUpSuggestedAutoplayButton");
     }
 };
 
@@ -468,10 +504,11 @@ var myVolumeInterval;
 var progressIntervalMS = 25;
 var volumeIntervalMS = 25;
 
-$(function () {
-    myProgressInterval = setInterval(progressIntervallUpdater, progressIntervalMS);
-    myVolumeInterval = setInterval(volumeIntervallUpdater, volumeIntervalMS);
+function addPlayedVideoToPlaylist() {
+    getYTVideoInfoByYTID(extractID(player.getVideoUrl()));
+};
 
+$(function () {
     $("#volumeSlider").slider();
     $("#volumeSlider").css("background", "#424242");
     $("#volumeSlider").slider({
@@ -514,16 +551,36 @@ $(function () {
     });
 });
 
-function customPlaylistInitialBuild() {
-    getYTVideoInfoByYTID("-mumVUh5cXw");
-    getYTVideoInfoByYTID("FL87JdFph-Y");
-    getYTVideoInfoByYTID("arc-FTNW-xI");
-    getYTVideoInfoByYTID("rswfNv6OfA8");
-    getYTVideoInfoByYTID("ClM5UqKQvEk");
-    getYTVideoInfoByYTID("GfTBEZP09D8");
-    getYTVideoInfoByYTID("nNLTBKEPsiU");
-    getYTVideoInfoByYTID("cr_Te6FDddg");
-    getYTVideoInfoByYTID("iXlR7zRYPTw");
-    getYTVideoInfoByYTID("sB0Am0v2pRo");
-    getYTVideoInfoByYTID("XBf8L7Kkdeo");
+var guid_currentlyPlaylingPlaylist;
+
+function loadPlaylistByIndex(playlistIndex) {
+    if (savedPlaylists[playlistIndex].PlaylistSongs.length > 0) {
+        clearPlaylist();
+        $("#playlistName").html("<h6 style='color:white;'>" + savedPlaylists[playlistIndex].PlaylistName + "</h6>");
+        guid_currentlyPlaylingPlaylist = savedPlaylists[playlistIndex].PlaylistID;
+        for (var i = 0; i < savedPlaylists[playlistIndex].PlaylistSongs.length; i++) {
+            getYTVideoInfoByYTID(savedPlaylists[playlistIndex].PlaylistSongs[i]);
+        }
+        $("#listItem_savePlaylist").removeClass("displayNone");
+    }
+};
+
+function clearPlaylist() {
+    playlistElements = [];
+    currentPlayingIndex = -1;
+    guid_currentlyPlaylingPlaylist = "";
+    $("#playlistName").html("<h6 style='color:white;'>New Playlist</h6>");
+    $("#playlist").html("");
+    $("#listItem_savePlaylist").addClass("displayNone");
+};
+
+function loadPublicPlaylist(playlist) {
+    if (playlist.PlaylistSongs.length > 0) {
+        clearPlaylist();
+        $("#playlistName").html("<h6 style='color:white;'>" + playlist.PlaylistName + "</h6>");
+        for (var i = 0; i < playlist.PlaylistSongs.length; i++) {
+            getYTVideoInfoByYTID(playlist.PlaylistSongs[i]);
+        }
+        $("#listItem_savePlaylist").addClass("displayNone");
+    }
 };

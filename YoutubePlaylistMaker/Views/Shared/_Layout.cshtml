@@ -16,7 +16,7 @@
     <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
     <script type="text/javascript" src="~/Scripts/YTSearchScripts.js"></script>
 </head>
-<body class="myBody">
+<body class="myBody bodyBackgroundColor">
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content"></div>
@@ -24,7 +24,12 @@
     </div>
     <div class="container-fluid">
         <div id="indexTop" class="row myHeader">
-            <div class="col-xs-8">
+            <div class="showMenuButtonDiv leftFloater">
+                <button type="button" class="btn btn-default btn-sm" onclick="slideIn()" data-toggle="tooltip" data-placement="top" title="Menu">
+                    <span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="myHeaderSize">
                 <div class="searchFieldDiv">
                     <input id="searchField" type="text" class="form-control leftFloater" onkeypress="inputSearchFieldOnKeyPressEvent(event)" placeholder="Search">
                     <button id="btn_search" type="button" class="btn btn-default btn-xs leftFloater searchButtonDimensions" onclick="searchYoutube()" data-toggle="tooltip" data-placement="top" title="Search">
@@ -33,23 +38,7 @@
                     </button>
                 </div>
             </div>
-            <div class="col-xs-4">
-                <div id="indexHeader" class="loginHeaderPadder">
-                    @if (Request.IsAuthenticated)
-                    {
-                        <strong>@Html.Encode(User.Identity.Name)</strong>
 
-                        <input class="btn btn-default" type="button" onclick="logOut()" value="Log out" />
-                    }
-                    else
-                    {
-                        @Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })
-
-                        @Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })
-                    }
-                </div>
-                <button type="button" class="btn btn-default btn-xs" onclick="customPlaylistInitialBuild()" data-toggle="tooltip" data-placement="top" title="For testing purposes">Fill Playlist</button>
-            </div>
         </div>
         <div class="row indexContainer">
             @RenderBody()
@@ -111,18 +100,5 @@
         $(".btn").mouseup(function () {
             $(this).blur();
         });
-
-        
     });
-
-    function logOut() {
-        $.ajax({
-            url: '@Url.Action("Logout", "User")',
-            success: function () {
-                var loginButton = '@Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })';
-                var registerButton = '@Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })';
-                $("#indexHeader").html(loginButton + registerButton);
-            }
-        });
-    };
 </script>

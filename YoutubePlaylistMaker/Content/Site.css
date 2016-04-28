@@ -1,7 +1,9 @@
 ﻿body {
-  font:12px/18px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font:12px/18px 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
-
+.bodyBackgroundColor {
+    background-color: #212121;
+}
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
@@ -9,32 +11,42 @@ textarea {
     max-width: 280px;
 }
 
+.displayNone {
+    display: none;
+}
+.displayBlock {
+    display: inline-block;
+}
+
 .myBody {
-    min-width: 995px;
+    min-width: 1000px;
 }
 .customBorder {
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 .indexContainer {
-    padding-left: 100px;
-    padding-right: 100px;
-    /*margin-top:60px;
-    margin-bottom:60px;*/
+    margin: 0 auto;
+    width: 1100px;
     padding-top: 60px;
     padding-bottom: 60px;
     overflow: auto;
+    overflow-x: hidden;
     z-index: 8;
+}
+.myHeaderSize {
+    width: 1100px;
+    margin: 0 auto;
 }
 .lefTopRightStyle {
     height: inherit;
     overflow-y: auto;
-    overflow-x: hidden;
-    background-color: #FAFAFA;
 }
 .customDiscreteBackground {
-    overflow-x: hidden;
     background-color: #FAFAFA;
+}
+.overflowXHide {
+    overflow-x: hidden;
 }
 .myBorder {
     border: 1px solid black;
@@ -54,7 +66,7 @@ textarea {
     height: 60px;
     min-width:995px;
     width:100%;
-    z-index: 9;
+    z-index: 100;
     background-color: #F0F0F0;
 }
 
@@ -86,8 +98,9 @@ textarea {
 }
 
 .customleftBottomPadder {
-    padding-left: 15px;
+    margin-left: 15px;
     padding-top: 15px;
+    width: 737.33px;
 }
 .customIndexRightPadder {
     padding-left: 15px;
@@ -96,15 +109,23 @@ textarea {
 .customRightBottomPadder {
     padding-top: 15px;
 }
-
+.playlistName {
+    float: left;
+    text-align: left;
+    width: 234px;
+    height: 23px;
+    margin-left: 2px;
+    overflow: hidden;
+}
 .ytLinkFix {
     float:left;
-    width:232px;
+    width:255px;
 }
 
 .playlistDivsPadder {
     padding-top: 5px;
     margin-left: 5px;
+    margin-right: 5px;
 }
 
 .playlistVideoContainer {
@@ -153,6 +174,7 @@ textarea {
     height: 100%;
     float: left;
     width: calc(100% - 26px);
+    cursor: pointer;
 }
 .leftFloater {
     float: left;
@@ -165,20 +187,29 @@ textarea {
 }
 
 .searchFieldDiv {
-    margin: 0 auto;
-    margin-left: 84px;
+    width: 348px;
     padding-top: 12px;
+    margin-left: 65px;
 }
 .searchButtonDimensions {
     height: 34px;
     width: 68px;
 }
 .loginHeaderPadder {
-    padding-top: 12px;
-    float: right;
-    margin-right: 87px;
+    margin-top: 12px;
+    width: 240px;
+    height: 46px;
 }
-
+.loginHeaderUserName {
+    margin-left: 10px;
+    margin-top: 6px;
+    float: left;
+}
+.fillplaylist {
+    width: 70px;
+    margin-top: 10px;
+    margin-left: 90px;
+}
 .searchResultItemContainer {
     height: 82px;
     margin-top: 10px;
@@ -210,10 +241,23 @@ textarea {
     padding-top: 10px;
 }
 .searchResultName {
-    height: 45px;
+    height: 28px;
+    overflow: hidden;
+    margin: 0;
+    margin-top: 8px;
+    margin-bottom: 6px;
+}
+.searchResultChannelTitle {
+    height: 15px;
+    overflow: hidden;
+    margin: 0;
+    margin-bottom: 5px;
 }
 .searchResultDuration {
-    
+    height: 15px;
+    overflow: hidden;
+    margin: 0;
+    padding-bottom: 2px;
 }
 .nextPrevButtonsContainer {
     display: flex;
@@ -284,4 +328,90 @@ textarea {
     padding-top: 25px;
     padding-right: 9px;
     padding-left: 2px;
+}
+.autoPlaySuggestionsButtonContainer {
+    height: 22px;
+    width: 104px;
+    margin: 0 auto;
+}
+.autoPlaySuggestionsButton {
+    width: 50px;
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+.customAutoplaySuggestionsText {
+    margin-top: 4px;
+    margin-bottom: 0;
+    margin-right: 5px;
+}
+.lightUpSuggestedAutoplayButton {
+    background-color: #8BC34A;
+}
+.autoPlaySuggestionsButton:hover {
+    border-color: #333333;
+}
+.slideInMenu {
+    width: 250px;
+    background: #E0E0E0;
+    position: fixed;
+    top: 60px;
+    bottom: 60px;
+    height: calc(100% - 120px);
+    left: 0;
+    z-index: 20;
+    display: none;
+}
+.showMenuButtonDiv {
+    width: 30px;
+    padding-top: 14px;
+    margin-left: 15px;
+}
+.addPlayedVideoToPlaylist {
+    position: relative;
+    top: 10px;
+    float: right;
+}
+.addPlayedVideoToPlaylistButton {
+    margin: 0;
+    width: 10px;
+    height: 10px;
+}
+.descriptionNameCustomWidth {
+    width: 250px;
+}
+.savedPlaylistsHeader {
+    margin-top: 10px;
+    width: 250px;
+    height: 46px;
+}
+.savedPlaylistHeaderInner {
+    width: 132px;
+    margin: 0 auto;
+}
+.savedPlaylistsContainer {
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100% - 56px);
+}
+.savedPlaylistName {
+    width: 250px;
+    padding-left: 25px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+}
+.savedPlaylistName:hover {
+    background-color: white;
+}
+.dropdownItem {
+    cursor: pointer;
+}
+.dropdownItem:hover {
+    background-color: #EEEEEE;
+}
+.loginButtons {
+    width: 147px;
+    margin: auto;
 }

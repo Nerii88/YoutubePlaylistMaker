@@ -2,8 +2,37 @@
     ViewBag.Title = "Index";
 }
 
+<div id="slideInMenu" class="slideInMenu">
+    <div class="row" style="margin-left: 0; margin-right: 0; height: 46px;">
+        <div id="indexHeader" class="loginHeaderPadder">
+            @if (Request.IsAuthenticated)
+            {
+                <div class="loginHeaderUserName"><strong>@Html.Encode(User.Identity.Name)</strong></div>
+                <div style="float:right;"><input class="btn btn-default" type="button" onclick="logOut()" value="Log out" /></div>
+            }
+            else
+            {
+                <div class="loginButtons">
+                    @Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })
+
+                    @Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row" style="margin-left: 0; margin-right: 0; height: calc(100% - 46px);">
+        <div id="savedPlaylistsContainer" class="displayNone" style="height: 100%;">
+            <div class="savedPlaylistsHeader">
+                <h4 class="savedPlaylistHeaderInner"><label>Saved Playlists</label></h4>
+                <hr style="border-color:black;" />
+            </div>
+            <div id="savedPlaylists" class="savedPlaylistsContainer"></div>
+        </div>
+    </div>
+</div>
+
 <div id="indexContent" class="row">
-    <div id="indexLeft" class="col-xs-7">
+    <div id="indexLeft" class="col-xs-8">
         <div id="leftTop" class="row">
             <div class="leftTopContainer">
                 <div class="leftTopOuter">
@@ -13,9 +42,15 @@
                                 <div id="player"></div>
                             </div>
                         </div>
-                        <div id="leftTopRight" class="col-xs-5 lefTopRightStyle customBorder">
+                        <div id="leftTopRight" class="col-xs-5 lefTopRightStyle customBorder overflowXHide customDiscreteBackground">
+                            <div id="addPlayedVideoToPlaylist" class="addPlayedVideoToPlaylist displayNone">
+                                <button type="button" class="btn btn-default btn-xs" onclick="addPlayedVideoToPlaylist()" data-toggle="tooltip" data-placement="top" title="Add to playlist">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true">
+                                    </span>
+                                </button>
+                            </div>
                             <div id="leftTopRightTop" class="row">
-                                <div id="videoNameContainer"></div>
+                                <div id="videoNameContainer" class="descriptionNameCustomWidth"></div>
                             </div>
                             <div id="leftTopRightBottom" class="row">
                                 <div id="videoDescContainer"></div>
@@ -25,24 +60,44 @@
                 </div> <!--leftTopOuter-->
             </div> <!--leftTopContainer-->
         </div> <!--leftTop-->
-        <div id="leftBottom" class="row customleftBottomPadder">
-            <div class="customBorder customDiscreteBackground">
-                <div id="searchResult"></div>
-                <div class="nextPrevButtonsContainer">
-                    <div id='nextprevButtons' class='searchNextPrevButtons'>
-                        <button title='Previous page' id='PREVbutton' class="btn btn-default btn-xs searchNextPrevButton" onclick='previousPage()' data-toggle='tooltip' data-placement='top'>Previous</button>
-                        <button title='Next page' id='NEXTbutton' class="btn btn-default btn-xs searchNextPrevButton" onclick='nextPage()' data-toggle='tooltip' data-placement='top'>Next</button>
+        <div id="leftBottom" class="row displayNone">
+            <div class="customleftBottomPadder">
+                <div class="customBorder overflowXHide customDiscreteBackground">
+                    <div id="searchResult"></div>
+                    <div class="nextPrevButtonsContainer">
+                        <div id='nextprevButtons' class='searchNextPrevButtons'>
+                            <button title="Previous page" id="PREVbutton" class="btn btn-default btn-xs searchNextPrevButton" onclick="previousPage()" data-toggle="tooltip" data-placement="top">Previous</button>
+                            <button title="Next" page id="NEXTbutton" class="btn btn-default btn-xs searchNextPrevButton" onclick="nextPage()" data-toggle="tooltip" data-placement="top">Next</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div> <!--leftBottom-->
     </div>
-    <div id="indexRight" class="col-xs-5">
+    <div id="indexRight" class="col-xs-4">
         <div id="rightTop" class="row customIndexRightPadder">
             <div class="playlistInfoContainer customIndexRightPadder">
-                <div id="playlistName" class="row playlistDivsPadder">
-                    <h6 style="color:white;">New Playlist</h6>
+                <div class="row playlistDivsPadder">
+                    <div id="playlistName" class="playlistName">
+                        <h6 style="color:white;">New Playlist</h6>
+                    </div>
+                    <div id="saveDropdown" class="leftFloater">
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                Save
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                                <li id="listItem_createPublicPlaylist" class="dropdownItem" onclick="createPublic()">Create Public</li>
+                                <li id="listItem_saveNewPlaylist" class="dropdownItem displayNone" onclick="saveNewPlaylist()">Save New</li>
+                                <li id="listItem_savePlaylist" class="dropdownItem displayNone" onclick="updatePlaylist()">Update</li>
+                                <li id="listItem_clearPlaylist" class="dropdownItem" onclick="clearPlaylist()">Clear Playlist</li>
+                                <li id="listItem_LoadPublicPlaylist" class="dropdownItem" onclick="manuallyLoadPublicPlaylist()">Load Public Playlist</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+                
                 <div id="ytLinkInputContainer" class="row playlistDivsPadder">
                     <input id="ytLink" type="text" class="form-control ytLinkFix" onkeypress="inputLinkFieldOnKeyPressEvent(event)" placeholder="Youtube Link Goes Here">
                     <input id="ytLinkInputButton" type="button" class="btn btn-default leftFloater" value="Add" onclick="addToPlaylistFromLinkInput()" data-toggle="tooltip" data-placement="top" title="Add to playlist">
@@ -66,8 +121,217 @@
                 <div id="playlist" class="row playlistContainer"></div>
             </div>
         </div>
-        <div id="rightBottom" class="row customIndexRightPadder customRightBottomPadder">
-            <div id="recommendationsContainer" class="customBorder customDiscreteBackground"></div>
+        <div id="rightBottom" class="row customIndexRightPadder customRightBottomPadder displayNone">
+            <div class="customBorder overflowXHide customDiscreteBackground">
+                <div class="autoPlaySuggestionsButtonContainer">
+                    <h6 class="leftFloater customAutoplaySuggestionsText"><label>Autoplay</label></h6>
+                    <button id="autoPlaySuggestionsButton" class="btn btn-xs autoPlaySuggestionsButton leftFloater" onclick="autoplayFromSuggested()" data-toggle="tooltip" data-placement="top" title="Automatically play random video from suggestions">
+                        <span class="glyphicon glyphicon-ok-sign" aria-hidden="true">
+                        </span>
+                    </button>
+                </div>
+                <div id="recommendationsContainer"></div>
+            </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(function () {
+        if ('@User.Identity.IsAuthenticated.ToString().ToLower()' == "true") {
+            $("#savedPlaylistsContainer").removeClass("displayNone");
+            $("#savedPlaylistsContainer").addClass("displayBlock");
+            $("#listItem_saveNewPlaylist").removeClass("displayNone");
+            $("#listItem_savePlaylist").removeClass("displayNone");
+            retrieveUserPlaylists();
+        }
+
+        getPublicPlaylist(getURLParameter());
+    });
+
+    function slideIn() {
+        $("#slideInMenu").toggle("slide");
+    };
+
+    function logOut() {
+        $.ajax({
+            url: '@Url.Action("Logout", "User")',
+            success: function () {
+                var loginButton = '@Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })';
+                var registerButton = '@Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })';
+                $("#indexHeader").html('<div class="loginButtons">' + loginButton + registerButton + '</div>');
+                $("#savedPlaylistsContainer").removeClass("displayBlock");
+                $("#savedPlaylistsContainer").addClass("displayNone");
+                $("#listItem_saveNewPlaylist").addClass("displayNone");
+                $("#listItem_savePlaylist").addClass("displayNone");
+                $("#savedPlaylists").html("");
+                savedPlaylists = [];
+            }
+        });
+    };
+
+    var savedPlaylists = [];
+
+    function retrieveUserPlaylists() {
+        $.ajax({
+            url: '@Url.Action("RetrieveSavedPlaylists", "User")',
+            dataType: 'json',
+            type: 'POST',
+            success: function (data) {
+                savedPlaylists = data;
+                generatePlaylistButtons();
+            },
+            error: function () {
+                alert("Failed to retrieve playlists, database connection error");
+            }
+        });
+    };
+
+    function generatePlaylistButtons() {
+        if (savedPlaylists.length > 0) {
+            var newHtml = "";
+            for (var i = 0; i < savedPlaylists.length; i++) {
+                var button = "<div class='savedPlaylistName' onclick='loadPlaylistByIndex(\"" + i + "\")'><h6><b>" + savedPlaylists[i].PlaylistName + "</b></h6></div>";
+                newHtml += button;
+            }
+            $("#savedPlaylists").html(newHtml);
+        }
+    };
+
+    function updatePlaylist() {
+        if (playlistElements.length > 0) {
+            var songIDs = [];
+
+            for (var i = 0; i < playlistElements.length; i++) {
+                songIDs[i] = playlistElements[i].ytID;
+            }
+            $.ajax({
+                url: '@Url.Action("UpdatePlaylist", "User")',
+                dataType: 'json',
+                type: 'POST',
+                data: {
+                    guid: guid_currentlyPlaylingPlaylist,
+                    songIDs: songIDs,
+                },
+                success: function(updated) {
+                    if (updated) {
+                        alert("Playlist updated");
+                        retrieveUserPlaylists();
+                    } else {
+                        alert("Failed to update playlist");
+                    }
+                },
+                error: function() {
+                    alert("Failed to update playlists, database connection error");
+                }
+            });
+        }
+    };
+
+    function saveNewPlaylist() {
+        if (playlistElements.length > 0) {
+            var plName = prompt("Enter playlist name");
+            while (plName == "") {
+                plName = prompt("Enter playlist name");
+            }
+            if (plName != null) {
+                var songIDs = [];
+
+                for (var i = 0; i < playlistElements.length; i++) {
+                    songIDs[i] = playlistElements[i].ytID;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("SaveNewPlaylist", "User")',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: {
+                        name: plName,
+                        songIDs: songIDs,
+                    },
+                    success: function(plID) {
+                        alert("New playlist saved");
+                        $("#listItem_savePlaylist").removeClass("displayNone");
+                        $("#playlistName").html("<h6 style='color:white;'>" + plName + "</h6>");
+                        guid_currentlyPlaylingPlaylist = plID;
+                        retrieveUserPlaylists();
+                    },
+                    error: function() {
+                        alert("Failed to save new playlist");
+                    }
+                });
+            }
+        }
+    };
+
+    function createPublic() {
+        if (playlistElements.length > 0) {
+            var plName = prompt("Enter playlist name");
+            while (plName == "") {
+                plName = prompt("Enter playlist name");
+            }
+            if (plName != null) {
+                var songIDs = [];
+
+                for (var i = 0; i < playlistElements.length; i++) {
+                    songIDs[i] = playlistElements[i].ytID;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CreatePublicPlaylist", "User")',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: {
+                        name: plName,
+                        songIDs: songIDs,
+                    },
+                    success: function (publicLink) {
+                        prompt("Public playlist created, copy the link below.\n", "http://localhost:34113/?plID=" + publicLink);
+                        $("#playlistName").html("<h6 style='color:white;'>" + plName + "</h6>");
+                        guid_currentlyPlaylingPlaylist = "";
+                    },
+                    error: function () {
+                        alert("Failed to create public playlist");
+                    }
+                });
+            }
+        }
+    };
+
+    function getPublicPlaylist(publicPlaylistID) {
+        if (publicPlaylistID != "") {
+            $.ajax({
+                url: '@Url.Action("GetPublicPlaylist", "User")',
+                dataType: 'json',
+                type: 'POST',
+                data: { publicPlaylistID: publicPlaylistID },
+                success: function (data) {
+                    if (data != false) {
+                        loadPublicPlaylist(data);
+                        guid_currentlyPlaylingPlaylist = "";
+                    }
+                },
+                error: function () {
+                    alert("Failed to get public playlist");
+                }
+            });
+        }
+    };
+
+    function manuallyLoadPublicPlaylist() {
+        var plID = prompt("Input public playlist ID");
+        getPublicPlaylist(plID);
+    };
+
+    function getURLParameter() {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('?');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == "plID") {
+                return sParameterName[1];
+            }
+        }
+        return "";
+    };
+</script>

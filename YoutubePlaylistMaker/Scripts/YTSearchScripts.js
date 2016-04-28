@@ -16,7 +16,7 @@ function searchYoutube() {
     var request = gapi.client.youtube.search.list({
         q: searchQuery,
         part: "snippet",
-        maxResults: 10,
+        maxResults: 12,
         type: "video",
     });
 
@@ -49,7 +49,7 @@ function searchWithToken(pageToken) {
     var request = gapi.client.youtube.search.list({
         q: searchQuery,
         part: "snippet",
-        maxResults: 10,
+        maxResults: 12,
         type: "video",
         pageToken: pageToken
     });
@@ -108,10 +108,11 @@ function addToSearchResult(item, duration) {
     var imgurl = item.snippet.thumbnails.medium.url;
     var title = removeQuotations(strip(item.snippet.title));
     var ytID = item.id.videoId;
+    var channelTitle = item.snippet.channelTitle;
     var desc = nl2br(item.snippet.description, true);
     var publishedAt = item.snippet.publishedAt;
 
-    searchResult.push({ imgLink: imgurl, name: title, ytID: ytID, description: desc, publishedAt: publishedAt, duration: duration});
+    searchResult.push({ imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt, duration: duration });
 };
 
 function strip(html) {
@@ -171,11 +172,15 @@ function convert_time(duration) {
 function populateSearchResults() {
     var searchResultDiv = $("#searchResult");
     var newHtml = "";
-
+    if ($("#leftBottom").hasClass("displayNone")) {
+        $("#leftBottom").removeClass("displayNone");
+        $("#leftBottom").addClass("displayBlock");
+    }
     for (var index = 1; index <= searchResult.length; index++) {
         var i = index - 1;
         var imgSrc = searchResult[i].imgLink;
         var videoName = searchResult[i].name;
+        var channelTitle = searchResult[i].channelTitle;
         var duration = searchResult[i].duration;
 
         var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSearch(\"" + i + "\")' " +
@@ -186,9 +191,10 @@ function populateSearchResults() {
 
         var imageDiv = "<div class='searchResultImageContainer'><img class='img-rounded' src='" + imgSrc + "' height='82' width='146' /></div>";
 
-        var nameDiv = "<div class='searchResultName'><h6><b>" + videoName + "</b></h6></div>";
-        var durationDiv = "<div class='searchResultDuration'><h6>" + duration + "</h6></div>";
-        var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + durationDiv + "</div>";
+        var nameDiv = "<div><h6 class='searchResultName'><b>" + videoName + "</b></h6></div>";
+        var channelTitleDiv = "<div><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
+        var durationDiv = "<div><h6 class='searchResultDuration'>" + duration + "</h6></div>";
+        var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + channelTitleDiv + durationDiv + "</div>";
 
         var allInOne = "<div class='searchResultItemContainer'>" + buttonsDiv + imageDiv + textDiv + "</div>";
         newHtml = newHtml + allInOne;
@@ -203,9 +209,19 @@ function playFromSearch(index) {
             unhighlightPlaylistVideo(currentPlayingIndex);
             currentPlayingIndex = -1;
             playingFromPlaylist = false;
+        } else if (playingFromSuggested) {
+            playingFromSuggested = false;
+            if (autoplayFromSuggestedBool)
+                autoplayFromSuggested();
         }
     
-        addTitleDateAndDescription(searchResult[index].name, searchResult[index].publishedAt, searchResult[index].description);
+        addTitleDateAndDescription(searchResult[index].name, searchResult[index].publishedAt, searchResult[index].channelTitle, searchResult[index].description);
+
+        if ($("#addPlayedVideoToPlaylist").hasClass("displayNone")) {
+            $("#addPlayedVideoToPlaylist").removeClass("displayNone");
+            $("#addPlayedVideoToPlaylist").addClass("displayBlock");
+        }
+
         player.loadVideoById(searchResult[index].ytID);
         player.setPlaybackQuality('hd720');
         

@@ -1,4 +1,6 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
 using System.Web.Security;
 using YoutubePlaylistMaker.Models;
 
@@ -6,6 +8,12 @@ namespace YoutubePlaylistMaker.Controllers
 {
     public class UserController : Controller
     {
+        private readonly DBHelper _dbHelper;
+        public UserController()
+        {
+            _dbHelper = new DBHelper();
+        }
+
         // GET: User
         public ActionResult LogIn()
         {
@@ -61,6 +69,60 @@ namespace YoutubePlaylistMaker.Controllers
         {
             FormsAuthentication.SignOut();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public ActionResult RetrieveSavedPlaylists()
+        {
+            if (ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                var playlists = _dbHelper.GetSavedPlaylists(User.Identity.Name);
+                return Json(playlists);
+            }
+            return Json(false);
+        }
+
+        [HttpPost]
+        public ActionResult SaveNewPlaylist(string name, List<string> songIDs)
+        {
+            if (ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                var plID = _dbHelper.SaveNewPlaylist(name, songIDs);
+                return Json(plID);
+            }
+            return Json(false);
+        }
+
+        [HttpPost]
+        public ActionResult CreatePublicPlaylist(string name, List<string> songIDs)
+        {
+            if (ModelState.IsValid)
+            {
+                var playlistLink = _dbHelper.CreatePublicPlaylist(name, songIDs);
+                return Json(playlistLink);
+            }
+            return Json(false);
+        }
+
+        [HttpPost]
+        public ActionResult UpdatePlaylist(Guid guid, List<string> songIDs)
+        {
+            if (ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                return Json(_dbHelper.UpdatePlaylist(guid, songIDs));
+            }
+            return Json(false);
+        }
+
+        public ActionResult GetPublicPlaylist(Guid publicPlaylistID)
+        {
+            if (ModelState.IsValid)
+            {
+                var playlist = _dbHelper.GetPublicPlaylist(publicPlaylistID);
+                if(playlist != null)
+                    return Json(playlist);
+            }
+            return Json(false);
         }
 
         private bool IsValid(string email, string password)

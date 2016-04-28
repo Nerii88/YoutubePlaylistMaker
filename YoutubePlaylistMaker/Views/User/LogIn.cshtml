@@ -44,14 +44,19 @@
             url: $form.attr('action'),
             data: $form.serialize(),
             error: function (xhr, status, error) {
-                alert("error");
+                alert("Log in error");
             },
             success: function (response) {
                 if (response) {
                     $("#myModal").modal('hide');
-                    var userName = '<strong>' + email + '</strong>';
-                    var logoutButton = '<input class="btn btn-default" type="button" onclick="logOut()" value="Log out"/>';
+                    var userName = '<div class="loginHeaderUserName"><strong>' + email + '</strong></div>';
+                    var logoutButton = '<div style="float:right;"><input class="btn btn-default" type="button" onclick="logOut()" value="Log out" /></div>';
                     $("#indexHeader").html(userName + logoutButton);
+                    $("#savedPlaylistsContainer").removeClass("displayNone");
+                    $("#savedPlaylistsContainer").addClass("displayBlock");
+                    $("#listItem_saveNewPlaylist").removeClass("displayNone");
+                    $("#listItem_savePlaylist").removeClass("displayNone");
+                    retrieveUserPlaylists();
                 } else {
                     $("#errorMessage").html("Invalid login information");
                 }
