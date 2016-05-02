@@ -9,4 +9,6 @@ TODO:
 
 1. Make the "channel name" clickable -> search for channel content
 
-2. Improve registration and login error messages
+2. Make songs load in the intended order in the playlist (currently loading in order of what gets pulled from the yt database fastest)
+
+3. Improve registration and login error messages
