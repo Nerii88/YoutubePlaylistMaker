@@ -38,11 +38,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="SimpleCrypto, Version=26.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleCrypto.0.3.30.26\lib\SimpleCrypto.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -84,12 +94,33 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\PlaylistDB.mdf" />
+    <Content Include="App_Data\PlaylistDB_log.ldf">
+      <DependentUpon>PlaylistDB.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\jquery-ui.min.css" />
     <Content Include="Content\Site.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <EntityDeploy Include="PlaylistDBModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>PlaylistDBModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="PlaylistDBModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>PlaylistDBModel.edmx</DependentUpon>
+      <LastGenOutput>PlaylistDBModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="PlaylistDBModel.edmx.diagram">
+      <DependentUpon>PlaylistDBModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="PlaylistDBModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>PlaylistDBModel.edmx</DependentUpon>
+      <LastGenOutput>PlaylistDBModel.cs</LastGenOutput>
+    </Content>
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\auth.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -112,10 +143,42 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\DBHelper.cs" />
+    <Compile Include="Models\DBHelperLocal.cs" />
+    <Compile Include="Models\IDBHelper.cs" />
     <Compile Include="Models\PlaylistObjectHelper.cs" />
-    <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Models\UserLoginModel.cs" />
+    <Compile Include="Models\UserRegistrationModel.cs" />
+    <Compile Include="Playlist.cs">
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PlaylistDBModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PlaylistDBModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PlaylistDBModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PlaylistDBModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PlaylistDBModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="PlaylistSong.cs">
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicPlaylist.cs">
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPlaylistSong.cs">
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User.cs">
+      <DependentUpon>PlaylistDBModel.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -134,7 +197,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

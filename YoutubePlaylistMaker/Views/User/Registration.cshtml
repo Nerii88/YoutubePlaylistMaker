@@ -1,32 +1,73 @@
-﻿@model YoutubePlaylistMaker.Models.UserModel
+﻿@model YoutubePlaylistMaker.Models.UserRegistrationModel
 @{
     ViewBag.Title = "Registration";
 }
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" id="myModalLabel">Modal Registration</h4>
+    <h4 class="modal-title" id="myRegisterModalLabel">Registration</h4>
 </div>
 <div class="modal-body">
-    @using (Html.BeginForm())
+    <div id="registrationErrorMessage"></div>
+    @using (Ajax.BeginForm("Registration", new AjaxOptions()
     {
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "registrationModalContainer"
+    }))
+    {
+        @Html.AntiForgeryToken()
         <div>
-            <fieldset>
-                <legend>Create new user</legend>
-                <div>
-                    @Html.LabelFor(u => u.Email)
-                </div>
-                <div>
-                    @Html.TextBoxFor(u => u.Email)
-                </div>
-                <div>
-                    @Html.LabelFor(u => u.Password)
-                </div>
-                <div>
-                    @Html.PasswordFor(u => u.Password)
-                </div>
-                <input type="submit" value="Create User" />
-            </fieldset>
+            @Html.LabelFor(u => u.UserName)
         </div>
+        <div>
+            @Html.TextBoxFor(u => u.UserName)
+        </div>
+        <div>
+            @Html.LabelFor(u => u.Email)
+        </div>
+        <div>
+            @Html.TextBoxFor(u => u.Email)
+        </div>
+        <div>
+            @Html.LabelFor(u => u.Password)
+        </div>
+        <div>
+            @Html.PasswordFor(u => u.Password)
+        </div>
+
+        <p>
+            <button type="button" onclick="ajaxRegistration(this)">Register</button>
+        </p>
     }
-    <p>This does not do anything yet</p>
+    <div id="registrationModalContainer"></div>
 </div>
+
+<script>
+    function ajaxRegistration(btnClicked) {
+        var $form = $(btnClicked).parents('form');
+        var name = $("#UserName").val();
+        $.ajax({
+            type: "POST",
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            error: function (xhr, status, error) {
+                alert("Registration error");
+            },
+            success: function (response) {
+                if (response) {
+                    $("#myModalRegistration").modal('hide');
+                    var userName = '<div class="loginHeaderUserName"><strong>' + name + '</strong></div>';
+                    var logoutButton = '<div style="float:right;"><input class="btn btn-default" type="button" onclick="logOut()" value="Log out" /></div>';
+                    $("#indexHeader").html(userName + logoutButton);
+                    $("#savedPlaylistsContainer").removeClass("displayNone");
+                    $("#savedPlaylistsContainer").addClass("displayBlock");
+                    $("#listItem_saveNewPlaylist").removeClass("displayNone");
+                    $("#listItem_savePlaylist").removeClass("displayNone");
+                } else {
+                    $("#registrationErrorMessage").html("Invalid registration information");
+                }
+            }
+        });
+
+        return false;// if it's a link to prevent post
+    }
+</script>

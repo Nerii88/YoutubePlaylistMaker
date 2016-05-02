@@ -1,21 +1,19 @@
 ﻿@{
     ViewBag.Title = "Index";
 }
-
 <div id="slideInMenu" class="slideInMenu">
     <div class="row" style="margin-left: 0; margin-right: 0; height: 46px;">
         <div id="indexHeader" class="loginHeaderPadder">
             @if (Request.IsAuthenticated)
             {
-                <div class="loginHeaderUserName"><strong>@Html.Encode(User.Identity.Name)</strong></div>
+                <div class="loginHeaderUserName"><strong>@Html.Encode(User.Identity.Name).Split('|')[1]</strong></div>
                 <div style="float:right;"><input class="btn btn-default" type="button" onclick="logOut()" value="Log out" /></div>
             }
             else
             {
                 <div class="loginButtons">
-                    @Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })
-
-                    @Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })
+                    @Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link-login", title = "Log In" })
+                    @Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link-registration", title = "Register" })
                 </div>
             }
         </div>
@@ -30,7 +28,6 @@
         </div>
     </div>
 </div>
-
 <div id="indexContent" class="row">
     <div id="indexLeft" class="col-xs-8">
         <div id="leftTop" class="row">
@@ -84,7 +81,7 @@
                     <div id="saveDropdown" class="leftFloater">
                         <div class="dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Save
+                                Options
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
@@ -97,7 +94,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div id="ytLinkInputContainer" class="row playlistDivsPadder">
                     <input id="ytLink" type="text" class="form-control ytLinkFix" onkeypress="inputLinkFieldOnKeyPressEvent(event)" placeholder="Youtube Link Goes Here">
                     <input id="ytLinkInputButton" type="button" class="btn btn-default leftFloater" value="Add" onclick="addToPlaylistFromLinkInput()" data-toggle="tooltip" data-placement="top" title="Add to playlist">
@@ -135,7 +132,6 @@
         </div>
     </div>
 </div>
-
 <script type="text/javascript">
     $(function () {
         if ('@User.Identity.IsAuthenticated.ToString().ToLower()' == "true") {
@@ -157,8 +153,8 @@
         $.ajax({
             url: '@Url.Action("Logout", "User")',
             success: function () {
-                var loginButton = '@Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link", title = "Log In" })';
-                var registerButton = '@Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link", title = "Register" })';
+                var loginButton = '@Html.ActionLink("Log In", "LogIn", "User", null, new { @class = "btn btn-default modal-link-login", title = "Log In" })';
+                var registerButton = '@Html.ActionLink("Register", "Registration", "User", null, new { @class = "btn btn-default modal-link-registration", title = "Register" })';
                 $("#indexHeader").html('<div class="loginButtons">' + loginButton + registerButton + '</div>');
                 $("#savedPlaylistsContainer").removeClass("displayBlock");
                 $("#savedPlaylistsContainer").addClass("displayNone");
@@ -213,7 +209,7 @@
                     guid: guid_currentlyPlaylingPlaylist,
                     songIDs: songIDs,
                 },
-                success: function(updated) {
+                success: function (updated) {
                     if (updated) {
                         alert("Playlist updated");
                         retrieveUserPlaylists();
@@ -221,7 +217,7 @@
                         alert("Failed to update playlist");
                     }
                 },
-                error: function() {
+                error: function () {
                     alert("Failed to update playlists, database connection error");
                 }
             });
@@ -249,14 +245,14 @@
                         name: plName,
                         songIDs: songIDs,
                     },
-                    success: function(plID) {
+                    success: function (plID) {
                         alert("New playlist saved");
                         $("#listItem_savePlaylist").removeClass("displayNone");
                         $("#playlistName").html("<h6 style='color:white;'>" + plName + "</h6>");
                         guid_currentlyPlaylingPlaylist = plID;
                         retrieveUserPlaylists();
                     },
-                    error: function() {
+                    error: function () {
                         alert("Failed to save new playlist");
                     }
                 });

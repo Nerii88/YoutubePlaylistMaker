@@ -512,7 +512,7 @@ $(function () {
     $("#volumeSlider").slider();
     $("#volumeSlider").css("background", "#424242");
     $("#volumeSlider").slider({
-        start: function() {
+        start: function () {
             clearInterval(myVolumeInterval);
         },
         stop: function () {
@@ -558,6 +558,7 @@ function loadPlaylistByIndex(playlistIndex) {
         clearPlaylist();
         $("#playlistName").html("<h6 style='color:white;'>" + savedPlaylists[playlistIndex].PlaylistName + "</h6>");
         guid_currentlyPlaylingPlaylist = savedPlaylists[playlistIndex].PlaylistID;
+        renewPlaylistLastDateUsed(guid_currentlyPlaylingPlaylist);
         for (var i = 0; i < savedPlaylists[playlistIndex].PlaylistSongs.length; i++) {
             getYTVideoInfoByYTID(savedPlaylists[playlistIndex].PlaylistSongs[i]);
         }
@@ -565,13 +566,26 @@ function loadPlaylistByIndex(playlistIndex) {
     }
 };
 
+function renewPlaylistLastDateUsed(playlistID) {
+    $.ajax({
+        url: '@Url.Action("RenewPlaylistLastDateUsed", "User")',
+        dataType: 'json',
+        type: 'POST',
+        data: { playlistID: playlistID },
+        success: function (value) {
+        }
+    });
+};
+
 function clearPlaylist() {
+    //if (confirm("Are you sure you want to clear the playlist?")) {
     playlistElements = [];
     currentPlayingIndex = -1;
     guid_currentlyPlaylingPlaylist = "";
     $("#playlistName").html("<h6 style='color:white;'>New Playlist</h6>");
     $("#playlist").html("");
     $("#listItem_savePlaylist").addClass("displayNone");
+    //}
 };
 
 function loadPublicPlaylist(playlist) {

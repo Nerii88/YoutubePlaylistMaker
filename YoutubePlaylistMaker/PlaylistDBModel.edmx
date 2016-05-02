@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="PlaylistDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Playlist">
+          <Key>
+            <PropertyRef Name="Playlist_ID" />
+          </Key>
+          <Property Name="Playlist_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Date_Created" Type="datetime" Nullable="false" />
+          <Property Name="Date_Last_Used" Type="datetime" Nullable="false" />
+          <Property Name="Playlist_Owner_Email" Type="nvarchar" MaxLength="150" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PlaylistSong">
+          <Key>
+            <PropertyRef Name="Unique_ID" />
+          </Key>
+          <Property Name="Unique_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Playlist_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Youtube_ID" Type="nchar" MaxLength="11" Nullable="false" />
+          <Property Name="Order_In_Playlist" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PublicPlaylist">
+          <Key>
+            <PropertyRef Name="Playlist_ID" />
+          </Key>
+          <Property Name="Playlist_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Date_Created" Type="datetime" Nullable="false" />
+          <Property Name="Date_Last_Used" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PublicPlaylistSong">
+          <Key>
+            <PropertyRef Name="Unique_ID" />
+          </Key>
+          <Property Name="Unique_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Playlist_ID" Type="nchar" MaxLength="36" Nullable="false" />
+          <Property Name="Youtube_ID" Type="nchar" MaxLength="11" Nullable="false" />
+          <Property Name="Order_In_Playlist" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Email" />
+          </Key>
+          <Property Name="Email" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="Password_Salt" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="Date_Joined" Type="datetime" Nullable="false" />
+          <Property Name="Date_Last_Visited" Type="datetime" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Playlist_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Playlist" Type="Self.Playlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Email" />
+            </Principal>
+            <Dependent Role="Playlist">
+              <PropertyRef Name="Playlist_Owner_Email" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaylistSong_To_Playlist">
+          <End Role="Playlist" Type="Self.Playlist" Multiplicity="1" />
+          <End Role="PlaylistSong" Type="Self.PlaylistSong" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Playlist">
+              <PropertyRef Name="Playlist_ID" />
+            </Principal>
+            <Dependent Role="PlaylistSong">
+              <PropertyRef Name="Playlist_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PublicPlaylistSong_To_PublicPlaylist">
+          <End Role="PublicPlaylist" Type="Self.PublicPlaylist" Multiplicity="1" />
+          <End Role="PublicPlaylistSong" Type="Self.PublicPlaylistSong" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PublicPlaylist">
+              <PropertyRef Name="Playlist_ID" />
+            </Principal>
+            <Dependent Role="PublicPlaylistSong">
+              <PropertyRef Name="Playlist_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PlaylistDBModelStoreContainer">
+          <EntitySet Name="Playlist" EntityType="Self.Playlist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PlaylistSong" EntityType="Self.PlaylistSong" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PublicPlaylist" EntityType="Self.PublicPlaylist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PublicPlaylistSong" EntityType="Self.PublicPlaylistSong" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Playlist_User" Association="Self.FK_Playlist_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Playlist" EntitySet="Playlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaylistSong_To_Playlist" Association="Self.FK_PlaylistSong_To_Playlist">
+            <End Role="Playlist" EntitySet="Playlist" />
+            <End Role="PlaylistSong" EntitySet="PlaylistSong" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PublicPlaylistSong_To_PublicPlaylist" Association="Self.FK_PublicPlaylistSong_To_PublicPlaylist">
+            <End Role="PublicPlaylist" EntitySet="PublicPlaylist" />
+            <End Role="PublicPlaylistSong" EntitySet="PublicPlaylistSong" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PlaylistDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Playlist">
+          <Key>
+            <PropertyRef Name="Playlist_ID" />
+          </Key>
+          <Property Name="Playlist_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Date_Created" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Date_Last_Used" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Playlist_Owner_Email" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Playlist_User" FromRole="Playlist" ToRole="User" />
+          <NavigationProperty Name="PlaylistSongs" Relationship="Self.FK_PlaylistSong_To_Playlist" FromRole="Playlist" ToRole="PlaylistSong" />
+        </EntityType>
+        <EntityType Name="PlaylistSong">
+          <Key>
+            <PropertyRef Name="Unique_ID" />
+          </Key>
+          <Property Name="Unique_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Playlist_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Youtube_ID" Type="String" MaxLength="11" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Order_In_Playlist" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Playlist" Relationship="Self.FK_PlaylistSong_To_Playlist" FromRole="PlaylistSong" ToRole="Playlist" />
+        </EntityType>
+        <EntityType Name="PublicPlaylist">
+          <Key>
+            <PropertyRef Name="Playlist_ID" />
+          </Key>
+          <Property Name="Playlist_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Date_Created" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Date_Last_Used" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="PublicPlaylistSongs" Relationship="Self.FK_PublicPlaylistSong_To_PublicPlaylist" FromRole="PublicPlaylist" ToRole="PublicPlaylistSong" />
+        </EntityType>
+        <EntityType Name="PublicPlaylistSong">
+          <Key>
+            <PropertyRef Name="Unique_ID" />
+          </Key>
+          <Property Name="Unique_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Playlist_ID" Type="String" MaxLength="36" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Youtube_ID" Type="String" MaxLength="11" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Order_In_Playlist" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="PublicPlaylist" Relationship="Self.FK_PublicPlaylistSong_To_PublicPlaylist" FromRole="PublicPlaylistSong" ToRole="PublicPlaylist" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Email" />
+          </Key>
+          <Property Name="Email" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Password_Salt" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Date_Joined" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Date_Last_Visited" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Playlists" Relationship="Self.FK_Playlist_User" FromRole="User" ToRole="Playlist" />
+        </EntityType>
+        <Association Name="FK_Playlist_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Playlist" Type="Self.Playlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Email" />
+            </Principal>
+            <Dependent Role="Playlist">
+              <PropertyRef Name="Playlist_Owner_Email" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaylistSong_To_Playlist">
+          <End Role="Playlist" Type="Self.Playlist" Multiplicity="1" />
+          <End Role="PlaylistSong" Type="Self.PlaylistSong" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Playlist">
+              <PropertyRef Name="Playlist_ID" />
+            </Principal>
+            <Dependent Role="PlaylistSong">
+              <PropertyRef Name="Playlist_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PublicPlaylistSong_To_PublicPlaylist">
+          <End Role="PublicPlaylist" Type="Self.PublicPlaylist" Multiplicity="1" />
+          <End Role="PublicPlaylistSong" Type="Self.PublicPlaylistSong" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PublicPlaylist">
+              <PropertyRef Name="Playlist_ID" />
+            </Principal>
+            <Dependent Role="PublicPlaylistSong">
+              <PropertyRef Name="Playlist_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PlaylistDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Playlists" EntityType="Self.Playlist" />
+          <EntitySet Name="PlaylistSongs" EntityType="Self.PlaylistSong" />
+          <EntitySet Name="PublicPlaylists" EntityType="Self.PublicPlaylist" />
+          <EntitySet Name="PublicPlaylistSongs" EntityType="Self.PublicPlaylistSong" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Playlist_User" Association="Self.FK_Playlist_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Playlist" EntitySet="Playlists" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaylistSong_To_Playlist" Association="Self.FK_PlaylistSong_To_Playlist">
+            <End Role="Playlist" EntitySet="Playlists" />
+            <End Role="PlaylistSong" EntitySet="PlaylistSongs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PublicPlaylistSong_To_PublicPlaylist" Association="Self.FK_PublicPlaylistSong_To_PublicPlaylist">
+            <End Role="PublicPlaylist" EntitySet="PublicPlaylists" />
+            <End Role="PublicPlaylistSong" EntitySet="PublicPlaylistSongs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PlaylistDBModelStoreContainer" CdmEntityContainer="PlaylistDBEntities">
+          <EntitySetMapping Name="Playlists">
+            <EntityTypeMapping TypeName="PlaylistDBModel.Playlist">
+              <MappingFragment StoreEntitySet="Playlist">
+                <ScalarProperty Name="Playlist_ID" ColumnName="Playlist_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Date_Created" ColumnName="Date_Created" />
+                <ScalarProperty Name="Date_Last_Used" ColumnName="Date_Last_Used" />
+                <ScalarProperty Name="Playlist_Owner_Email" ColumnName="Playlist_Owner_Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PlaylistSongs">
+            <EntityTypeMapping TypeName="PlaylistDBModel.PlaylistSong">
+              <MappingFragment StoreEntitySet="PlaylistSong">
+                <ScalarProperty Name="Unique_ID" ColumnName="Unique_ID" />
+                <ScalarProperty Name="Playlist_ID" ColumnName="Playlist_ID" />
+                <ScalarProperty Name="Youtube_ID" ColumnName="Youtube_ID" />
+                <ScalarProperty Name="Order_In_Playlist" ColumnName="Order_In_Playlist" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PublicPlaylists">
+            <EntityTypeMapping TypeName="PlaylistDBModel.PublicPlaylist">
+              <MappingFragment StoreEntitySet="PublicPlaylist">
+                <ScalarProperty Name="Playlist_ID" ColumnName="Playlist_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Date_Created" ColumnName="Date_Created" />
+                <ScalarProperty Name="Date_Last_Used" ColumnName="Date_Last_Used" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PublicPlaylistSongs">
+            <EntityTypeMapping TypeName="PlaylistDBModel.PublicPlaylistSong">
+              <MappingFragment StoreEntitySet="PublicPlaylistSong">
+                <ScalarProperty Name="Unique_ID" ColumnName="Unique_ID" />
+                <ScalarProperty Name="Playlist_ID" ColumnName="Playlist_ID" />
+                <ScalarProperty Name="Youtube_ID" ColumnName="Youtube_ID" />
+                <ScalarProperty Name="Order_In_Playlist" ColumnName="Order_In_Playlist" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="PlaylistDBModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Password_Salt" ColumnName="Password_Salt" />
+                <ScalarProperty Name="Date_Joined" ColumnName="Date_Joined" />
+                <ScalarProperty Name="Date_Last_Visited" ColumnName="Date_Last_Visited" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,11 +1,10 @@
-﻿@model YoutubePlaylistMaker.Models.UserModel
-
+﻿@model YoutubePlaylistMaker.Models.UserLoginModel
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" id="myModalLabel">Log In</h4>
+    <h4 class="modal-title" id="myLoginModalLabel">Log In</h4>
 </div>
 <div class="modal-body">
-    <div id="errorMessage"></div>
+    <div id="loginErrorMessage"></div>
     @using (Ajax.BeginForm("LogIn", new AjaxOptions()
     {
         InsertionMode = InsertionMode.Replace,
@@ -28,17 +27,14 @@
         </div>
 
         <p>
-            <button type="button" onclick="ajaxPost(this)">Log In</button>
+            <button type="button" onclick="ajaxLogin(this)">Log In</button>
         </p>
     }
-    <p>This does not do anything yet</p>
     <div id="loginModalContainer"></div>
 </div>
-
 <script>
-    function ajaxPost(btnClicked) {
+    function ajaxLogin(btnClicked) {
         var $form = $(btnClicked).parents('form');
-        var email = $("#Email").val();
         $.ajax({
             type: "POST",
             url: $form.attr('action'),
@@ -47,9 +43,9 @@
                 alert("Log in error");
             },
             success: function (response) {
-                if (response) {
-                    $("#myModal").modal('hide');
-                    var userName = '<div class="loginHeaderUserName"><strong>' + email + '</strong></div>';
+                if (response != false) {
+                    $("#myModalLogin").modal('hide');
+                    var userName = '<div class="loginHeaderUserName"><strong>' + response + '</strong></div>';
                     var logoutButton = '<div style="float:right;"><input class="btn btn-default" type="button" onclick="logOut()" value="Log out" /></div>';
                     $("#indexHeader").html(userName + logoutButton);
                     $("#savedPlaylistsContainer").removeClass("displayNone");
@@ -58,7 +54,7 @@
                     $("#listItem_savePlaylist").removeClass("displayNone");
                     retrieveUserPlaylists();
                 } else {
-                    $("#errorMessage").html("Invalid login information");
+                    $("#loginErrorMessage").html("Invalid login information");
                 }
             }
         });

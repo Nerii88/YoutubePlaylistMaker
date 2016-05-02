@@ -2,7 +2,7 @@
 
 namespace YoutubePlaylistMaker.Models
 {
-    public class UserModel
+    public class UserLoginModel
     {
         [Required]
         [EmailAddress]

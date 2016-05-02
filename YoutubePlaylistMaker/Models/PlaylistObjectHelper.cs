@@ -16,21 +16,16 @@ namespace YoutubePlaylistMaker.Models
             PlaylistSongs = new List<string>();
         }
 
-        public PlaylistObjectHelper(string name, IEnumerable<string> songs)
+        public PlaylistObjectHelper(Guid playlistID, string name)
         {
-            PlaylistID = Guid.NewGuid();
+            PlaylistID = playlistID;
             PlaylistName = name;
-            PlaylistSongs = new List<string>(songs);
+            PlaylistSongs = new List<string>();
         }
 
         public void Add(string songID)
         {
             PlaylistSongs.Add(songID);
-        }
-
-        public void SetGuid(Guid id) //remove this when database is added
-        {
-            PlaylistID = id;
         }
     }
 }

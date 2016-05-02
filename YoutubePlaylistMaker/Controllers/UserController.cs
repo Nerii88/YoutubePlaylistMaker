@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Web.Security;
 using YoutubePlaylistMaker.Models;
@@ -8,10 +7,10 @@ namespace YoutubePlaylistMaker.Controllers
 {
     public class UserController : Controller
     {
-        private readonly DBHelper _dbHelper;
+        private readonly IDBHelper _dbHelper;
         public UserController()
         {
-            _dbHelper = new DBHelper();
+            _dbHelper = new DBHelperLocal();
         }
 
         // GET: User
@@ -21,13 +20,14 @@ namespace YoutubePlaylistMaker.Controllers
         }
 
         [HttpPost]
-        public JsonResult LogIn(UserModel user)
+        public JsonResult LogIn(UserLoginModel user)
         {
-            if (ModelState.IsValid && IsValid(user.Email, user.Password))
+            if (ModelState.IsValid && _dbHelper.IsValid(user.Email, user.Password))
             {
-                FormsAuthentication.SetAuthCookie(user.Email, true);
+                string userName = _dbHelper.GetUserName(user.Email);
+                FormsAuthentication.SetAuthCookie(user.Email + "|" + userName, true);
 
-                return Json(true);
+                return Json(userName);
             }
 
             return Json(false);
@@ -40,28 +40,13 @@ namespace YoutubePlaylistMaker.Controllers
         }
 
         [HttpPost]
-        public ActionResult Registration(UserModel user)
+        public ActionResult Registration(UserRegistrationModel user)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    using (var db = new MyLoginDBEntities())
-            //    {
-            //        var crypto = new SimpleCrypto.PBKDF2();
-            //        var encrpPass = crypto.Compute(user.Password);
-            //        var sysUser = db.Users.Create();
-
-            //        sysUser.Email = user.Email;
-            //        sysUser.Password = encrpPass;
-            //        sysUser.PasswordSalt = crypto.Salt;
-
-            //        db.Users.Add(sysUser);
-            //        db.SaveChanges();
-
-            //        return RedirectToAction("Index", "Home");
-            //    }
-            //}
-
-            return PartialView(user);
+            if (ModelState.IsValid)
+            {
+                return Json(_dbHelper.Registration(user));
+            }
+            return Json(false);
         }
 
         [HttpGet]
@@ -76,7 +61,7 @@ namespace YoutubePlaylistMaker.Controllers
         {
             if (ModelState.IsValid && User.Identity.IsAuthenticated)
             {
-                var playlists = _dbHelper.GetSavedPlaylists(User.Identity.Name);
+                var playlists = _dbHelper.GetSavedPlaylists(User.Identity.Name.Split('|')[0]);
                 return Json(playlists);
             }
             return Json(false);
@@ -87,7 +72,7 @@ namespace YoutubePlaylistMaker.Controllers
         {
             if (ModelState.IsValid && User.Identity.IsAuthenticated)
             {
-                var plID = _dbHelper.SaveNewPlaylist(name, songIDs);
+                var plID = _dbHelper.SaveNewPlaylist(User.Identity.Name.Split('|')[0], name, songIDs);
                 return Json(plID);
             }
             return Json(false);
@@ -105,7 +90,7 @@ namespace YoutubePlaylistMaker.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdatePlaylist(Guid guid, List<string> songIDs)
+        public ActionResult UpdatePlaylist(string guid, List<string> songIDs)
         {
             if (ModelState.IsValid && User.Identity.IsAuthenticated)
             {
@@ -114,37 +99,26 @@ namespace YoutubePlaylistMaker.Controllers
             return Json(false);
         }
 
-        public ActionResult GetPublicPlaylist(Guid publicPlaylistID)
+        [HttpPost]
+        public ActionResult GetPublicPlaylist(string publicPlaylistID)
         {
             if (ModelState.IsValid)
             {
                 var playlist = _dbHelper.GetPublicPlaylist(publicPlaylistID);
-                if(playlist != null)
+                if (playlist != null)
                     return Json(playlist);
             }
             return Json(false);
         }
 
-        private bool IsValid(string email, string password)
+        [HttpPost]
+        public ActionResult RenewPlaylistLastDateUsed(string playlistID)
         {
-            //var crypto = new SimpleCrypto.PBKDF2();
-            //bool isValid = false;
-
-            //using (var db = new MyLoginDBEntities())
-            //{
-            //    var user = db.Users.FirstOrDefault(u => u.Email == email);
-
-            //    if (user != null)
-            //    {
-            //        if (user.Password == crypto.Compute(password, user.PasswordSalt))
-            //        {
-            //            isValid = true;
-            //        }
-            //    }
-            //}
-
-            //return isValid;
-            return true;
+            if (ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                _dbHelper.RenewPlaylistLastDateUsed(playlistID);
+            }
+            return Json(true);
         }
     }
 }
