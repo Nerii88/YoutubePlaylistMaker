@@ -28,7 +28,12 @@ namespace YoutubePlaylistMaker.Models
                     PlaylistObjectHelper playlist = new PlaylistObjectHelper(Guid.Parse(user.Playlists.ElementAt(i).Playlist_ID), user.Playlists.ElementAt(i).Name);
                     for (int j = 0; j < user.Playlists.ElementAt(i).PlaylistSongs.Count; j++)
                     {
-                        playlist.Add(user.Playlists.ElementAt(i).PlaylistSongs.ElementAt(j).Youtube_ID);
+                        var song = user.Playlists.ElementAt(i).PlaylistSongs.FirstOrDefault(s => s.Order_In_Playlist == j + 1);
+                        if (song != null)
+                        {
+                            string ytid = song.Youtube_ID;
+                            playlist.Add(ytid);
+                        }
                     }
 
                     playlists.Add(playlist);
@@ -49,11 +54,12 @@ namespace YoutubePlaylistMaker.Models
                 playlist.Date_Last_Used = DateTime.Now;
 
                 var songs = new List<PublicPlaylistSong>();
-                foreach (var songID in songIDs)
+                for (int i = 0; i < songIDs.Count; i++)
                 {
                     var song = new PublicPlaylistSong();
                     song.Unique_ID = Guid.NewGuid().ToString();
-                    song.Youtube_ID = songID;
+                    song.Youtube_ID = songIDs[i];
+                    song.Order_In_Playlist = i + 1;
                     songs.Add(song);
                 }
 
@@ -78,11 +84,12 @@ namespace YoutubePlaylistMaker.Models
                 playlist.Playlist_Owner_Email = email;
 
                 var songs = new List<PlaylistSong>();
-                foreach (var songID in songIDs)
+                for (int i = 0; i < songIDs.Count; i++)
                 {
                     var song = new PlaylistSong();
                     song.Unique_ID = Guid.NewGuid().ToString();
-                    song.Youtube_ID = songID;
+                    song.Youtube_ID = songIDs[i];
+                    song.Order_In_Playlist = i + 1;
                     songs.Add(song);
                 }
 
@@ -102,17 +109,15 @@ namespace YoutubePlaylistMaker.Models
                 var playlist = db.Playlists.FirstOrDefault(pl => pl.Playlist_ID == playlistID);
 
                 var songs = new List<PlaylistSong>();
-                foreach (var songID in songIDs)
+                for (int i = 0; i < songIDs.Count; i++)
                 {
                     var song = new PlaylistSong();
                     song.Unique_ID = Guid.NewGuid().ToString();
-                    song.Youtube_ID = songID;
+                    song.Youtube_ID = songIDs[i];
+                    song.Order_In_Playlist = i + 1;
                     songs.Add(song);
                 }
-                for (int i = playlist.PlaylistSongs.Count - 1; i >= 0; i--)
-                {
-                    db.Set<PlaylistSong>().Remove(playlist.PlaylistSongs.ElementAt(i));
-                }
+                db.Set<PlaylistSong>().RemoveRange(playlist.PlaylistSongs);
                 playlist.PlaylistSongs = songs;
                 try
                 {
@@ -135,9 +140,14 @@ namespace YoutubePlaylistMaker.Models
                 {
                     var playlist = new PlaylistObjectHelper(Guid.Parse(publicPlaylist.Playlist_ID), publicPlaylist.Name);
 
-                    foreach (var song in publicPlaylist.PublicPlaylistSongs)
+                    for (int i = 0; i < publicPlaylist.PublicPlaylistSongs.Count; i++)
                     {
-                        playlist.Add(song.Youtube_ID);
+                        var song = publicPlaylist.PublicPlaylistSongs.FirstOrDefault(s => s.Order_In_Playlist == i + 1);
+                        if (song != null)
+                        {
+                            string ytid = song.Youtube_ID;
+                            playlist.Add(ytid);
+                        }
                     }
 
                     publicPlaylist.Date_Last_Used = DateTime.Now;
@@ -207,6 +217,26 @@ namespace YoutubePlaylistMaker.Models
             }
 
             return isValid;
+        }
+
+        public bool RemovePlaylist(string playlistID)
+        {
+            using (var db = new PlaylistDBEntities())
+            {
+                var playlist = db.Playlists.First(p => p.Playlist_ID == playlistID);
+
+                db.Set<PlaylistSong>().RemoveRange(playlist.PlaylistSongs);
+                db.Set<Playlist>().Remove(playlist);
+                try
+                {
+                    db.SaveChanges();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
         }
     }
 }

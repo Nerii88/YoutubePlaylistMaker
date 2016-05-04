@@ -397,6 +397,7 @@ textarea {
 }
 .savedPlaylistName {
     width: 250px;
+    height: 43px;
     padding-left: 25px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -404,6 +405,19 @@ textarea {
 }
 .savedPlaylistName:hover {
     background-color: white;
+}
+.savedPlaylistNameText {
+    width: 200px;
+    float: left;
+    overflow-x: hidden;
+}
+.savedPlaylistNameDeleteButton {
+    width: 5px;
+    height: 5px;
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-top: 7px;
+    float: left;
 }
 .dropdownItem {
     cursor: pointer;

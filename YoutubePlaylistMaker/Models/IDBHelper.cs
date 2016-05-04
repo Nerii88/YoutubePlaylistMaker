@@ -22,5 +22,7 @@ namespace YoutubePlaylistMaker.Models
         bool Registration(UserRegistrationModel user);
 
         bool IsValid(string email, string password);
+
+        bool RemovePlaylist(string playlistID);
     }
 }

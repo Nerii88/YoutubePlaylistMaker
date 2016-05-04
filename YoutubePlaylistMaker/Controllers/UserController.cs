@@ -42,9 +42,10 @@ namespace YoutubePlaylistMaker.Controllers
         [HttpPost]
         public ActionResult Registration(UserRegistrationModel user)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _dbHelper.Registration(user))
             {
-                return Json(_dbHelper.Registration(user));
+                FormsAuthentication.SetAuthCookie(user.Email + "|" + user.UserName, true);
+                return Json(true);
             }
             return Json(false);
         }
@@ -119,6 +120,16 @@ namespace YoutubePlaylistMaker.Controllers
                 _dbHelper.RenewPlaylistLastDateUsed(playlistID);
             }
             return Json(true);
+        }
+
+        [HttpPost]
+        public ActionResult RemovePlaylist(string playlistID)
+        {
+            if (ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                return Json(_dbHelper.RemovePlaylist(playlistID));
+            }
+            return Json(false);
         }
     }
 }

@@ -206,7 +206,7 @@ function addTitleDateAndDescription(title, date, channelTitle, desc) {
     var descContainer = $("#videoDescContainer");
 
     var titleBuilder = "<h4>" + title + "</h4>";
-    var descBuilder = "<p><b>Published on: " + date.substr(0, 10) + "</b></p>" + "<b><p>" + channelTitle + "</p></b>\n\n<p>" + desc + "</p>";
+    var descBuilder = "<p><b>Published on: " + date.substr(0, 10) + "</b></p>" + "<b><p style='cursor: pointer;' onclick='searchByChannelName(\"" + channelTitle + "\")'>" + channelTitle + "</p></b>\n\n<p>" + desc + "</p>";
 
     nameConainer.html(titleBuilder);
     descContainer.html(descBuilder);
@@ -279,6 +279,32 @@ function getYTVideoInfoByYTID(ytID) {
         var publishedAt = data.items[0].snippet.publishedAt;
 
         playlistElements.push({ imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt });
+        populatePlaylist();
+        return "";
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        alert(jqXHR.responseText || errorThrown);
+    });
+};
+
+function getYTVideoInfoByYTID_putInCertainIndex(ytID, orderIndex) {
+    $.getJSON("https://www.googleapis.com/youtube/v3/videos", {
+        key: "AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
+        part: "snippet, contentDetails",
+        id: ytID
+    },
+    function (data) {
+        if (data.items.length == 0) {
+            alert("Video not found");
+            return "";
+        }
+
+        var title = removeQuotations(strip(data.items[0].snippet.title));
+        var imgurl = data.items[0].snippet.thumbnails.medium.url;
+        var channelTitle = data.items[0].snippet.channelTitle;
+        var desc = nl2br(data.items[0].snippet.description, true);
+        var publishedAt = data.items[0].snippet.publishedAt;
+
+        playlistElements[orderIndex] = { imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt };
         populatePlaylist();
         return "";
     }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -394,7 +420,7 @@ function populateSuggestions() {
         var imageDiv = "<div class='searchResultImageContainer'><img class='img-rounded' src='" + imgSrc + "' height='82' width='146' /></div>";
 
         var nameDiv = "<div><h6 class='searchResultName'><b>" + videoName + "</b></h6></div>";
-        var channelTitleDiv = "<div><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
+        var channelTitleDiv = "<div style='cursor: pointer;' onclick='searchByChannelName(\"" + channelTitle + "\")'><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
         var durationDiv = "<div><h6 class='searchResultDuration'>" + duration + "</h6></div>";
         var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + channelTitleDiv + durationDiv + "</div>";
 
@@ -505,7 +531,7 @@ var progressIntervalMS = 25;
 var volumeIntervalMS = 25;
 
 function addPlayedVideoToPlaylist() {
-    getYTVideoInfoByYTID(extractID(player.getVideoUrl()));
+    getYTVideoInfoByYTID(player.getVideoData()['video_id']);
 };
 
 $(function () {
@@ -560,7 +586,7 @@ function loadPlaylistByIndex(playlistIndex) {
         guid_currentlyPlaylingPlaylist = savedPlaylists[playlistIndex].PlaylistID;
         renewPlaylistLastDateUsed(guid_currentlyPlaylingPlaylist);
         for (var i = 0; i < savedPlaylists[playlistIndex].PlaylistSongs.length; i++) {
-            getYTVideoInfoByYTID(savedPlaylists[playlistIndex].PlaylistSongs[i]);
+            getYTVideoInfoByYTID_putInCertainIndex(savedPlaylists[playlistIndex].PlaylistSongs[i], i);
         }
         $("#listItem_savePlaylist").removeClass("displayNone");
     }
@@ -593,7 +619,7 @@ function loadPublicPlaylist(playlist) {
         clearPlaylist();
         $("#playlistName").html("<h6 style='color:white;'>" + playlist.PlaylistName + "</h6>");
         for (var i = 0; i < playlist.PlaylistSongs.length; i++) {
-            getYTVideoInfoByYTID(playlist.PlaylistSongs[i]);
+            getYTVideoInfoByYTID_putInCertainIndex(playlist.PlaylistSongs[i], i);
         }
         $("#listItem_savePlaylist").addClass("displayNone");
     }

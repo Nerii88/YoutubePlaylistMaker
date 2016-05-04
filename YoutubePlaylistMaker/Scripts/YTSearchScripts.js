@@ -10,6 +10,9 @@ function inputSearchFieldOnKeyPressEvent(e) {
 
 var searchQuery, nextPageToken, prevPageToken;
 
+var _normalSearch;
+var _channelSearch;
+
 function searchYoutube() {
     searchQuery = $("#searchField").val();
 
@@ -22,6 +25,9 @@ function searchYoutube() {
 
     request.execute(function (response) {
         $("#searchResult").empty();
+
+        _normalSearch = true;
+        _channelSearch = false;
 
         nextPageToken = response.result.nextPageToken;
         var nextVis = nextPageToken ? "visible" : "hidden";
@@ -37,12 +43,20 @@ function searchYoutube() {
 
 //Next page of search results
 function nextPage() {
-    searchWithToken(nextPageToken);
+    if (_normalSearch) {
+        searchWithToken(nextPageToken);
+    } else if (_channelSearch) {
+        channelSearchWithToken(nextPageTokenChannel);
+    }
 };
 
 //Previous page of search results
 function previousPage() {
-    searchWithToken(prevPageToken);
+    if (_normalSearch) {
+        searchWithToken(prevPageToken);
+    } else if (_channelSearch) {
+        channelSearchWithToken(prevPageTokenChannel);
+    }
 };
 
 function searchWithToken(pageToken) {
@@ -56,6 +70,9 @@ function searchWithToken(pageToken) {
 
     request.execute(function (response) {
         $("#searchResult").empty();
+
+        _normalSearch = true;
+        _channelSearch = false;
 
         nextPageToken = response.result.nextPageToken;
         var nextVis = nextPageToken ? "visible" : "hidden";
@@ -108,6 +125,121 @@ function addToSearchResult(item, duration) {
     var imgurl = item.snippet.thumbnails.medium.url;
     var title = removeQuotations(strip(item.snippet.title));
     var ytID = item.id.videoId;
+    var channelTitle = item.snippet.channelTitle;
+    var desc = nl2br(item.snippet.description, true);
+    var publishedAt = item.snippet.publishedAt;
+
+    searchResult.push({ imgLink: imgurl, name: title, ytID: ytID, channelTitle: channelTitle, description: desc, publishedAt: publishedAt, duration: duration });
+};
+
+var nextPageTokenChannel, prevPageTokenChannel;
+var channelPlaylistId;
+
+function searchByChannelName(channelName) {
+    var request = gapi.client.youtube.search.list({
+        q: channelName,
+        part: "snippet",
+        maxResults: 1,
+        type: "channel",
+    });
+
+    request.execute(function (response) {
+        var channelSearch = gapi.client.youtube.channels.list({
+            id: response.items[0].id.channelId,
+            part: "contentDetails",
+            maxResults: 1,
+        });
+
+        channelSearch.execute(function (channelResponse) {
+            channelPlaylistId = channelResponse.items[0].contentDetails.relatedPlaylists.uploads;
+
+            var playlistSearch = gapi.client.youtube.playlistItems.list({
+                playlistId: channelPlaylistId,
+                part: "snippet",
+                maxResults: 12,
+            });
+
+            playlistSearch.execute(function (finalResult) {
+                $("#searchResult").empty();
+
+                _normalSearch = false;
+                _channelSearch = true;
+
+                nextPageTokenChannel = finalResult.result.nextPageToken;
+                var nextVis = nextPageTokenChannel ? "visible" : "hidden";
+                $("#NEXTbutton").css("visibility", nextVis);
+                prevPageTokenChannel = finalResult.result.prevPageToken;
+                var prevVis = prevPageTokenChannel ? "visible" : "hidden";
+                $("#PREVbutton").css("visibility", prevVis);
+
+                getYTVideosDurationFromChannelName(finalResult.result);
+            });
+        });
+    });
+};
+
+function channelSearchWithToken(pageToken) {
+    var playlistSearch = gapi.client.youtube.playlistItems.list({
+        playlistId: channelPlaylistId,
+        part: "snippet",
+        maxResults: 12,
+        pageToken: pageToken
+    });
+
+    playlistSearch.execute(function (finalResult) {
+        $("#searchResult").empty();
+
+        _normalSearch = false;
+        _channelSearch = true;
+
+        nextPageTokenChannel = finalResult.result.nextPageToken;
+        var nextVis = nextPageTokenChannel ? "visible" : "hidden";
+        $("#NEXTbutton").css("visibility", nextVis);
+        prevPageTokenChannel = finalResult.result.prevPageToken;
+        var prevVis = prevPageTokenChannel ? "visible" : "hidden";
+        $("#PREVbutton").css("visibility", prevVis);
+
+        getYTVideosDurationFromChannelName(finalResult.result);
+    });
+}
+
+function getYTVideosDurationFromChannelName(videoData) {
+    var allIds = "";
+    for (var i = 0; i < videoData.items.length; i++) {
+        if (i == videoData.items.length - 1) {
+            allIds = allIds + videoData.items[i].snippet.resourceId.videoId;
+        } else {
+            allIds = allIds + videoData.items[i].snippet.resourceId.videoId + ", ";
+        }
+    }
+    $.getJSON("https://www.googleapis.com/youtube/v3/videos", {
+        key: "AIzaSyCn4nYVKMaboYuhKnpykR5ivgT6loRzqxY",
+        part: "contentDetails",
+        id: allIds
+    },
+    function (durationsData) {
+        if (durationsData.items.length == 0) {
+            alert("Video not found");
+            return "";
+        }
+
+        searchResult = [];
+        for (var j = 0; j < durationsData.items.length; j++) {
+            addToSearchResultFromChannelName(videoData.items[j], convert_time(durationsData.items[j].contentDetails.duration));
+        }
+        populateSearchResults();
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+
+        return "";
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        alert(jqXHR.responseText || errorThrown);
+    });
+};
+
+function addToSearchResultFromChannelName(item, duration) {
+    var imgurl = item.snippet.thumbnails.medium.url;
+    var title = removeQuotations(strip(item.snippet.title));
+    var ytID = item.snippet.resourceId.videoId;
     var channelTitle = item.snippet.channelTitle;
     var desc = nl2br(item.snippet.description, true);
     var publishedAt = item.snippet.publishedAt;
@@ -182,6 +314,7 @@ function populateSearchResults() {
         var videoName = searchResult[i].name;
         var channelTitle = searchResult[i].channelTitle;
         var duration = searchResult[i].duration;
+        var videoId = searchResult[i].ytID;
 
         var playButton = "<div class='searchResultPlayButton'><button type='button' class='btn btn-default btn-xs' onclick='playFromSearch(\"" + i + "\")' " +
             "data-toggle='tooltip' data-placement='top' title='Play'><span class='glyphicon glyphicon-play-circle' aria-hidden='true'></span></button></div>";
@@ -192,7 +325,7 @@ function populateSearchResults() {
         var imageDiv = "<div class='searchResultImageContainer'><img class='img-rounded' src='" + imgSrc + "' height='82' width='146' /></div>";
 
         var nameDiv = "<div><h6 class='searchResultName'><b>" + videoName + "</b></h6></div>";
-        var channelTitleDiv = "<div><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
+        var channelTitleDiv = "<div style='cursor: pointer;' onclick='searchByChannelName(\"" + channelTitle + "\")'><h6 class='searchResultChannelTitle'><b>" + channelTitle + "</b></h6></div>";
         var durationDiv = "<div><h6 class='searchResultDuration'>" + duration + "</h6></div>";
         var textDiv = "<div class='searchResultTextContainer'>" + nameDiv + channelTitleDiv + durationDiv + "</div>";
 
@@ -214,7 +347,7 @@ function playFromSearch(index) {
             if (autoplayFromSuggestedBool)
                 autoplayFromSuggested();
         }
-    
+
         addTitleDateAndDescription(searchResult[index].name, searchResult[index].publishedAt, searchResult[index].channelTitle, searchResult[index].description);
 
         if ($("#addPlayedVideoToPlaylist").hasClass("displayNone")) {
@@ -224,7 +357,7 @@ function playFromSearch(index) {
 
         player.loadVideoById(searchResult[index].ytID);
         player.setPlaybackQuality('hd720');
-        
+
         findSuggestionsToPlayedVideo(searchResult[index].ytID);
     }
 };

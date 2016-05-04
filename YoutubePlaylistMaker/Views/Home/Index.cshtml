@@ -88,7 +88,7 @@
                                 <li id="listItem_createPublicPlaylist" class="dropdownItem" onclick="createPublic()">Create Public</li>
                                 <li id="listItem_saveNewPlaylist" class="dropdownItem displayNone" onclick="saveNewPlaylist()">Save New</li>
                                 <li id="listItem_savePlaylist" class="dropdownItem displayNone" onclick="updatePlaylist()">Update</li>
-                                <li id="listItem_clearPlaylist" class="dropdownItem" onclick="clearPlaylist()">Clear Playlist</li>
+                                <li id="listItem_clearPlaylist" class="dropdownItem" onclick="newPlaylist()">Clear Playlist</li>
                                 <li id="listItem_LoadPublicPlaylist" class="dropdownItem" onclick="manuallyLoadPublicPlaylist()">Load Public Playlist</li>
                             </ul>
                         </div>
@@ -166,6 +166,12 @@
         });
     };
 
+    function newPlaylist() {
+        if (confirm("Are you sure you want to clear the playlist?")) {
+            clearPlaylist();
+        }
+    };
+
     var savedPlaylists = [];
 
     function retrieveUserPlaylists() {
@@ -187,10 +193,36 @@
         if (savedPlaylists.length > 0) {
             var newHtml = "";
             for (var i = 0; i < savedPlaylists.length; i++) {
-                var button = "<div class='savedPlaylistName' onclick='loadPlaylistByIndex(\"" + i + "\")'><h6><b>" + savedPlaylists[i].PlaylistName + "</b></h6></div>";
+                var name = "<div class='savedPlaylistNameText' onclick='loadPlaylistByIndex(\"" + i + "\")'><h6><b>" + savedPlaylists[i].PlaylistName + "</b></h6></div>";
+                var deleteButton = "<div class='savedPlaylistNameDeleteButton' onclick='deletePlaylist(\"" + savedPlaylists[i].PlaylistID + "\", \"" + savedPlaylists[i].PlaylistName + "\")'>x</div>";
+                var button = "<div class='savedPlaylistName'>" + name + deleteButton + "</div>";
                 newHtml += button;
             }
             $("#savedPlaylists").html(newHtml);
+        }
+    };
+
+    function deletePlaylist(playlistID, playlistName) {
+        if (confirm("Are you sure you want to delete " + playlistName + "?")) {
+            $.ajax({
+                url: '@Url.Action("RemovePlaylist", "User")',
+                dataType: 'json',
+                type: 'POST',
+                data: {
+                    playlistID: playlistID,
+                },
+                success: function (deleted) {
+                    if (deleted) {
+                        alert("Playlist deleted");
+                        retrieveUserPlaylists();
+                    } else {
+                        alert("Failed to delete playlist");
+                    }
+                },
+                error: function () {
+                    alert("Failed to delete playlist, database connection error");
+                }
+            });
         }
     };
 
