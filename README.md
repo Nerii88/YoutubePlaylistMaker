@@ -1,17 +1,14 @@
 # YoutubePlaylistMaker
 Make youtube playlists easily all on a dynamically loading page!
 Project made in Visual Studio 2013.
-Database is not added yet (can't save or update playlists that will be there next time you run the site, log in with whatever name/password(6chars+) to see prebuilt playlists).
 
 Screen shot: https://i.imgur.com/1WBf9e0.jpg
 
 
 TODO:
 
-1. Add a database
+1. Make the "channel name" clickable -> search for channel content
 
-2. Make users able to register and ability to log in
+2. Make songs load in the intended order in the playlist (currently loading in order of what gets pulled from the yt database fastest)
 
-3. Make users able to save and load their playlists to/from the database
-
-4. Ability to make playlists public and accessible via a unique link
+3. Improve registration and login error messages
